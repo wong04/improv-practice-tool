@@ -10,7 +10,7 @@ export const TIME_SIGNATURES: { label: string; beatsPerBar: number }[] = [
 	{ label: "6/8", beatsPerBar: 6 },
 ];
 
-export const MIN_BPM = 30;
+export const MIN_BPM = 1;
 export const MAX_BPM = 300;
 
 const clampBpm = (bpm: number) => Math.max(MIN_BPM, Math.min(MAX_BPM, bpm));
@@ -79,7 +79,7 @@ export function TransportControls(props: TransportProps) {
 					<BpmInput
 						bpm={bpm}
 						onBpmChange={onBpmChange}
-						className="w-[2.6ch] bg-transparent text-center font-mono text-2xl tabular-nums caret-accent outline-none focus:text-accent"
+						className="w-[3.5ch] bg-transparent text-center font-mono text-2xl tabular-nums caret-accent outline-none focus:text-accent"
 					/>
 					<span className="text-xs uppercase tracking-widest text-muted">bpm</span>
 				</div>
@@ -109,7 +109,7 @@ export function TransportControls(props: TransportProps) {
 					<BpmInput
 						bpm={bpm}
 						onBpmChange={onBpmChange}
-						className="w-[2.6ch] bg-transparent text-center font-mono text-6xl leading-none tabular-nums caret-accent outline-none focus:text-accent"
+						className="w-[3.5ch] bg-transparent text-center font-mono text-6xl leading-none tabular-nums caret-accent outline-none focus:text-accent"
 					/>
 					<span className="text-sm uppercase tracking-[0.2em] text-muted">bpm</span>
 				</div>
