@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { usePersistentState } from "@/lib/storage/usePersistentState";
 import { useMetronome } from "@/lib/audio/useMetronome";
 import { useChordPlayer } from "@/lib/audio/useChordPlayer";
 import { useDrill } from "@/lib/drill/useDrill";
@@ -17,26 +18,27 @@ import { PatternChart } from "@/components/PatternChart";
 type Mode = "drill" | "patterns";
 
 export default function Home() {
-	const [mode, setMode] = useState<Mode>("drill");
+	const [mode, setMode] = usePersistentState<Mode>("mode", "drill");
 
 	// Shared / transport settings
-	const [bpm, setBpm] = useState(100);
-	const [beatsPerBar, setBeatsPerBar] = useState(4);
-	const [muted, setMuted] = useState(false);
-	const [audioEnabled, setAudioEnabled] = useState(false);
-	const [instrument, setInstrument] = useState<Instrument>("C");
+	const [bpm, setBpm] = usePersistentState("bpm", 100);
+	const [beatsPerBar, setBeatsPerBar] = usePersistentState("beatsPerBar", 4);
+	const [muted, setMuted] = usePersistentState("muted", false);
+	const [audioEnabled, setAudioEnabled] = usePersistentState("audioEnabled", false);
+	const [countIn, setCountIn] = usePersistentState("countIn", false);
+	const [instrument, setInstrument] = usePersistentState<Instrument>("instrument", "C");
 
 	// Drill settings
-	const [level, setLevel] = useState<Level>(1);
-	const [keyChoice, setKeyChoice] = useState<string | "all">("all");
-	const [barsPerChord, setBarsPerChord] = useState(2);
-	const [nextPreview, setNextPreview] = useState<NextPreview>("auto");
+	const [level, setLevel] = usePersistentState<Level>("level", 1);
+	const [keyChoice, setKeyChoice] = usePersistentState<string | "all">("keyChoice", "all");
+	const [barsPerChord, setBarsPerChord] = usePersistentState("barsPerChord", 2);
+	const [nextPreview, setNextPreview] = usePersistentState<NextPreview>("nextPreview", "auto");
 
 	// Pattern settings
-	const [progressionId, setProgressionId] = useState(PROGRESSIONS[0].id);
-	const [keyCycle, setKeyCycle] = useState<KeyCycle>("lock");
-	const [tempoRamp, setTempoRamp] = useState(false);
-	const [rampStep, setRampStep] = useState(2);
+	const [progressionId, setProgressionId] = usePersistentState("progressionId", PROGRESSIONS[0].id);
+	const [keyCycle, setKeyCycle] = usePersistentState<KeyCycle>("keyCycle", "lock");
+	const [tempoRamp, setTempoRamp] = usePersistentState("tempoRamp", false);
+	const [rampStep, setRampStep] = usePersistentState("rampStep", 2);
 	const progression = PROGRESSIONS.find((p) => p.id === progressionId) ?? PROGRESSIONS[0];
 
 	const playChord = useChordPlayer(audioEnabled);
@@ -64,7 +66,7 @@ export default function Home() {
 	const metronome = useMetronome({
 		bpm,
 		beatsPerBar,
-		countInBars: 0,
+		countInBars: countIn ? 1 : 0,
 		muted,
 		onTick: mode === "drill" ? drill.onTick : pattern.onTick,
 	});
@@ -122,6 +124,8 @@ export default function Home() {
 						onMutedChange={setMuted}
 						audioEnabled={audioEnabled}
 						onAudioEnabledChange={setAudioEnabled}
+						countIn={countIn}
+						onCountInChange={setCountIn}
 						beat={metronome.beat}
 						counting={metronome.counting}
 					/>
@@ -158,6 +162,8 @@ export default function Home() {
 						onMutedChange={setMuted}
 						audioEnabled={audioEnabled}
 						onAudioEnabledChange={setAudioEnabled}
+						countIn={countIn}
+						onCountInChange={setCountIn}
 						beat={metronome.beat}
 						counting={metronome.counting}
 					/>

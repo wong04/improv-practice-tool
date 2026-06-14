@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Improv Practice Tool
 
-## Getting Started
+A web tool for musicians practicing improvisation. It flashes chords to blow over in
+time with a built-in metronome, with difficulty tiers and common jazz patterns.
 
-First, run the development server:
+## Features
+
+- **Chord drill** — random chords flash on the beat. Four difficulty tiers that stack up:
+  triads → 7th chords → extensions (9/11/13) → altered dominants. Lock to one key or draw
+  from all 12. A difficulty-gated "next chord" preview helps on easy levels and hides on hard ones.
+- **Pattern practice** — transposable jazz progressions (ii–V–I, turnarounds, blues, rhythm
+  changes, tritone subs, backdoor ii–V, modal interchange, Bird blues, Giant Steps, …), grouped
+  by difficulty. Loop in one key, **cycle keys** by fourths or at random each rep, and **ramp the
+  tempo** every repetition.
+- **Metronome** — accurate scheduling on `Tone.Transport`, adjustable tempo, time signatures
+  (4/4, 3/4, 2/4, 6/8), accented downbeat, visual beat indicator, optional count-in.
+- **Voiced chord audio** (optional) — hear each chord, not just see it.
+- **Instrument transposition** — read chords in concert pitch or for B♭ / E♭ / F instruments.
+- Settings persist in your browser; no account needed.
+
+## Tech
+
+- Next.js (App Router) + TypeScript + Tailwind CSS
+- [Tonal.js](https://github.com/tonaljs/tonal) — chord/scale theory and transposition
+- [Tone.js](https://github.com/Tonejs/Tone.js) — audio clock, metronome, and chord synth
+
+## Development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
+npm test           # vitest — theory engine unit tests
+npm run lint
+npm run typecheck
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The music-theory engine lives in `lib/theory/` (pure functions, unit-tested). Audio is in
+`lib/audio/`, the drill/pattern schedulers in `lib/drill/` and `lib/pattern/`, and UI in
+`components/`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deploy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Zero-config on [Vercel](https://vercel.com): import the GitHub repo and deploy. The app is fully
+client-side (static), so there is no server runtime cost.

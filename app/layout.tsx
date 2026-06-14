@@ -27,7 +27,12 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        {children}
+        <footer className="px-4 py-6 text-center text-xs text-foreground/40">
+          Practice tool for improvisers — chord drills, jazz patterns &amp; metronome.
+        </footer>
+      </body>
     </html>
   );
 }

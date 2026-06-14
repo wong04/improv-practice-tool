@@ -23,6 +23,8 @@ export function TransportControls({
 	onMutedChange,
 	audioEnabled,
 	onAudioEnabledChange,
+	countIn,
+	onCountInChange,
 	beat,
 	counting,
 }: {
@@ -36,6 +38,8 @@ export function TransportControls({
 	onMutedChange: (muted: boolean) => void;
 	audioEnabled: boolean;
 	onAudioEnabledChange: (enabled: boolean) => void;
+	countIn: boolean;
+	onCountInChange: (enabled: boolean) => void;
 	beat: number;
 	counting: boolean;
 }) {
@@ -114,6 +118,15 @@ export function TransportControls({
 						</button>
 					))}
 				</div>
+				<label className="ml-auto flex items-center gap-2 text-sm text-foreground/70">
+					<input
+						type="checkbox"
+						checked={countIn}
+						onChange={(e) => onCountInChange(e.target.checked)}
+						className="h-4 w-4 accent-foreground"
+					/>
+					Count-in
+				</label>
 			</div>
 		</div>
 	);
