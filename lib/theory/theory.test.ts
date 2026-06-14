@@ -87,6 +87,17 @@ describe("difficulty tiers", () => {
 			expect(randomChord(1, "Eb").root).toBe("Eb");
 		}
 	});
+
+	it("favours the selected tier's own qualities", () => {
+		const tier4 = new Set(TIERS[4].qualities);
+		let inTier = 0;
+		const draws = 4000;
+		for (let n = 0; n < draws; n++) {
+			if (tier4.has(randomChord(4, "all").quality)) inTier++;
+		}
+		// Uniform over the full level-4 pool would be ~5/23 ≈ 22%; the bias lifts it well past 40%.
+		expect(inTier / draws).toBeGreaterThan(0.4);
+	});
 });
 
 describe("reharmonizations expand to the expected chords", () => {

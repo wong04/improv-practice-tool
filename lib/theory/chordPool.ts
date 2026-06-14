@@ -52,12 +52,17 @@ export function qualityPool(level: Level): QualityId[] {
 
 export type Chord = { root: string; quality: QualityId; symbol: string };
 
+/** Probability that a draw comes from the selected tier rather than the whole pool. */
+const TIER_BIAS = 0.6;
+
 function pick<T>(items: readonly T[], rng: () => number): T {
 	return items[Math.floor(rng() * items.length)];
 }
 
 /**
- * Generate a random chord for the drill.
+ * Generate a random chord for the drill. The selected tier's own qualities are
+ * favoured (so e.g. "Alterations" mostly shows altered chords) while easier
+ * qualities from lower tiers still surface.
  * @param keyChoice a specific key from KEYS, or "all" to draw a random root.
  */
 export function randomChord(
@@ -66,7 +71,8 @@ export function randomChord(
 	instrument: Instrument = "C",
 	rng: () => number = Math.random,
 ): Chord {
-	const quality = pick(qualityPool(level), rng);
+	const fromTier = level > 1 && rng() < TIER_BIAS;
+	const quality = pick(fromTier ? TIERS[level].qualities : qualityPool(level), rng);
 	const concertRoot = keyChoice === "all" ? pick(KEYS, rng) : keyChoice;
 	const root = transposeForInstrument(concertRoot, instrument);
 	return { root, quality, symbol: formatChord(root, quality) };
