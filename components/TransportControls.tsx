@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { MetronomeIndicator } from "./MetronomeIndicator";
 
 export const TIME_SIGNATURES: { label: string; beatsPerBar: number }[] = [
@@ -76,7 +76,11 @@ export function TransportControls(props: TransportProps) {
 				{startStop}
 				<MetronomeIndicator beatsPerBar={beatsPerBar} beat={beat} counting={counting} />
 				<div className="flex items-baseline gap-1.5">
-					<span className="font-mono text-2xl tabular-nums">{bpm}</span>
+					<BpmInput
+						bpm={bpm}
+						onBpmChange={onBpmChange}
+						className="w-[2.6ch] bg-transparent text-center font-mono text-2xl tabular-nums caret-accent outline-none focus:text-accent"
+					/>
 					<span className="text-xs uppercase tracking-widest text-muted">bpm</span>
 				</div>
 				<div className="flex items-center gap-2">
@@ -102,7 +106,11 @@ export function TransportControls(props: TransportProps) {
 			{/* BPM hero */}
 			<div className="flex flex-wrap items-end justify-between gap-4">
 				<div className="flex items-baseline gap-2">
-					<span className="font-mono text-6xl leading-none tabular-nums">{bpm}</span>
+					<BpmInput
+						bpm={bpm}
+						onBpmChange={onBpmChange}
+						className="w-[2.6ch] bg-transparent text-center font-mono text-6xl leading-none tabular-nums caret-accent outline-none focus:text-accent"
+					/>
 					<span className="text-sm uppercase tracking-[0.2em] text-muted">bpm</span>
 				</div>
 				<div className="flex items-center gap-3">
@@ -187,6 +195,51 @@ export function TransportControls(props: TransportProps) {
 				</label>
 			</div>
 		</div>
+	);
+}
+
+function BpmInput({
+	bpm,
+	onBpmChange,
+	className,
+}: {
+	bpm: number;
+	onBpmChange: (bpm: number) => void;
+	className?: string;
+}) {
+	// While focused, hold a free-text draft so partial entries (e.g. "1" before "120")
+	// aren't clamped mid-typing; commit + clamp on blur/Enter.
+	const [draft, setDraft] = useState<string | null>(null);
+
+	const commit = () => {
+		const n = parseInt(draft ?? "", 10);
+		if (!Number.isNaN(n)) onBpmChange(clampBpm(n));
+		setDraft(null);
+	};
+
+	return (
+		<input
+			type="text"
+			inputMode="numeric"
+			value={draft ?? String(bpm)}
+			onChange={(e) => setDraft(e.target.value.replace(/[^0-9]/g, "").slice(0, 3))}
+			onFocus={(e) => {
+				setDraft(String(bpm));
+				e.target.select();
+			}}
+			onBlur={commit}
+			onKeyDown={(e) => {
+				if (e.key === "Enter") {
+					commit();
+					e.currentTarget.blur();
+				} else if (e.key === "Escape") {
+					setDraft(null);
+					e.currentTarget.blur();
+				}
+			}}
+			aria-label="Tempo in BPM"
+			className={className}
+		/>
 	);
 }
 
