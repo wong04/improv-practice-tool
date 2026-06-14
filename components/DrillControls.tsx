@@ -34,7 +34,7 @@ export function DrillControls({
 		<div className="flex w-full max-w-xl flex-col gap-5 rounded-2xl border border-foreground/10 p-5">
 			<div className="flex flex-col gap-2">
 				<span className="text-sm text-foreground/60">Difficulty</span>
-				<div className="grid grid-cols-4 gap-1.5">
+				<div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
 					{([1, 2, 3, 4] as Level[]).map((l) => (
 						<button
 							key={l}
@@ -54,12 +54,12 @@ export function DrillControls({
 				<span className="text-xs text-foreground/45">{TIERS[level].description}</span>
 			</div>
 
-			<div className="grid grid-cols-2 gap-4">
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 				<Field label="Key">
 					<select
 						value={keyChoice}
 						onChange={(e) => onKeyChange(e.target.value)}
-						className="w-full rounded-lg border border-foreground/15 bg-transparent px-2 py-1.5 text-sm"
+						className="w-full rounded-lg border border-foreground/15 bg-background px-2 py-1.5 text-sm"
 					>
 						<option value="all">All keys (random)</option>
 						{KEYS.map((k) => (
@@ -93,7 +93,7 @@ export function DrillControls({
 					<select
 						value={instrument}
 						onChange={(e) => onInstrumentChange(e.target.value as Instrument)}
-						className="w-full rounded-lg border border-foreground/15 bg-transparent px-2 py-1.5 text-sm"
+						className="w-full rounded-lg border border-foreground/15 bg-background px-2 py-1.5 text-sm"
 					>
 						{INSTRUMENTS.map((inst) => (
 							<option key={inst.id} value={inst.id}>
@@ -107,7 +107,7 @@ export function DrillControls({
 					<select
 						value={nextPreview}
 						onChange={(e) => onNextPreviewChange(e.target.value as NextPreview)}
-						className="w-full rounded-lg border border-foreground/15 bg-transparent px-2 py-1.5 text-sm"
+						className="w-full rounded-lg border border-foreground/15 bg-background px-2 py-1.5 text-sm"
 					>
 						<option value="auto">Auto (by difficulty)</option>
 						<option value="show">Always show</option>

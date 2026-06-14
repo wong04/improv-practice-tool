@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import * as Tone from "tone";
 import { Tick } from "@/lib/audio/metronome";
 import { Chord, Level, randomChord } from "@/lib/theory/chordPool";
 import { Instrument } from "@/lib/theory/transpose";
@@ -70,11 +71,14 @@ export function useDrill(settings: DrillSettings): DrillState {
 
 		const promoted = nextRef.current;
 		const upcoming = differentChord(settingsRef.current, promoted);
-		setCurrent(promoted);
-		setNext(upcoming);
 		currentRef.current = promoted;
 		nextRef.current = upcoming;
 		if (promoted) settingsRef.current.onChordChange?.(promoted, tick.time);
+		// Defer the on-screen swap to land on the beat, not at look-ahead.
+		Tone.getDraw().schedule(() => {
+			setCurrent(promoted);
+			setNext(upcoming);
+		}, tick.time);
 	}, []);
 
 	return { current, next, onTick, reset };

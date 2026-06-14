@@ -40,7 +40,9 @@ export class ChordPlayer {
 	play(root: string, quality: QualityId, time: number, durationSeconds: number): void {
 		const freqs = voicing(root, quality);
 		if (!freqs.length) return;
-		this.getSynth().triggerAttackRelease(freqs, Math.max(0.1, durationSeconds * 0.95), time, 0.5);
+		// Never schedule in the past — that silently drops the chord.
+		const at = Math.max(time, Tone.now() + 0.02);
+		this.getSynth().triggerAttackRelease(freqs, Math.max(0.1, durationSeconds * 0.95), at, 0.5);
 	}
 
 	dispose(): void {

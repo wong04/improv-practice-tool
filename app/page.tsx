@@ -93,7 +93,7 @@ export default function Home() {
 	return (
 		<main className="flex flex-1 flex-col items-center gap-8 px-4 py-8">
 			<header className="text-center">
-				<h1 className="text-2xl font-semibold tracking-tight">Improv Practice Tool</h1>
+				<h1 className="text-2xl font-semibold tracking-tight">Chord Thrower</h1>
 				<p className="mt-1 text-sm text-foreground/60">Drill chords and jazz patterns in time.</p>
 			</header>
 

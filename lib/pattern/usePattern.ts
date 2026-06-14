@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import * as Tone from "tone";
 import { Note } from "tonal";
 import { Tick } from "@/lib/audio/metronome";
 import { Instrument, KEYS } from "@/lib/theory/transpose";
@@ -137,17 +138,18 @@ export function usePattern(settings: PatternSettings): PatternState {
 			if (pos >= s[i]) idx = i;
 			else break;
 		}
-		setActiveIndex(idx);
 		if (idx !== lastIdxRef.current) {
 			lastIdxRef.current = idx;
 			const chord = chordsRef.current[idx];
 			if (chord) onChordChangeRef.current?.(chord, tick.time);
 		}
+		// Defer the highlight move to land on the beat, not at look-ahead.
+		Tone.getDraw().schedule(() => setActiveIndex(idx), tick.time);
 
 		beatRef.current += 1;
 		if (beatRef.current >= totalRef.current) {
 			beatRef.current = 0;
-			setTonic((t) => nextTonic(t, cycleRef.current));
+			Tone.getDraw().schedule(() => setTonic((t) => nextTonic(t, cycleRef.current)), tick.time);
 			onRepRef.current?.();
 		}
 	}, []);

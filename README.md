@@ -1,6 +1,6 @@
-# Improv Practice Tool
+# Chord Thrower
 
-A web tool for musicians practicing improvisation. It flashes chords to blow over in
+A web tool for musicians practicing improvisation. It throws chords on screen to blow over in
 time with a built-in metronome, with difficulty tiers and common jazz patterns.
 
 ## Features

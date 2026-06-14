@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import * as Tone from "tone";
 import { ensureAudioReady } from "./audioContext";
 import { Metronome, Tick } from "./metronome";
 
@@ -43,9 +44,13 @@ export function useMetronome(config: MetronomeConfig): MetronomeControls {
 		if (!metronomeRef.current) {
 			const m = new Metronome();
 			m.onTick = (tick) => {
-				setBeat(tick.beat);
-				setCounting(tick.counting);
+				// Engines run at audio-rate (they schedule sound at tick.time); the beat
+				// indicator is deferred to Tone.Draw so it stays visually in sync.
 				onTickRef.current?.(tick);
+				Tone.getDraw().schedule(() => {
+					setBeat(tick.beat);
+					setCounting(tick.counting);
+				}, tick.time);
 			};
 			metronomeRef.current = m;
 		}

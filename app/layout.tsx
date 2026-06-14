@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Improv Practice Tool",
-  description: "Drill chords and jazz patterns to practice improvisation, with a built-in metronome.",
+  title: "Chord Thrower",
+  description: "Chord Thrower drills chords and jazz patterns to practice improvisation, with a built-in metronome.",
 };
 
 export default function RootLayout({
@@ -30,7 +30,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col">
         {children}
         <footer className="px-4 py-6 text-center text-xs text-foreground/40">
-          Practice tool for improvisers — chord drills, jazz patterns &amp; metronome.
+          Chord Thrower — chord drills, jazz patterns &amp; metronome for improvisers.
         </footer>
       </body>
     </html>

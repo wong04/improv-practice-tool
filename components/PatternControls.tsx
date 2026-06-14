@@ -36,7 +36,7 @@ export function PatternControls({
 				<select
 					value={progressionId}
 					onChange={(e) => onProgressionChange(e.target.value)}
-					className="w-full rounded-lg border border-foreground/15 bg-transparent px-2 py-1.5 text-sm"
+					className="w-full rounded-lg border border-foreground/15 bg-background px-2 py-1.5 text-sm"
 				>
 					{([1, 2, 3, 4] as Level[]).map((level) => (
 						<optgroup key={level} label={`Level ${level} — ${TIERS[level].name}`}>
@@ -50,12 +50,12 @@ export function PatternControls({
 				</select>
 			</Field>
 
-			<div className="grid grid-cols-2 gap-4">
+			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 				<Field label="Key cycling">
 					<select
 						value={keyCycle}
 						onChange={(e) => onKeyCycleChange(e.target.value as KeyCycle)}
-						className="w-full rounded-lg border border-foreground/15 bg-transparent px-2 py-1.5 text-sm"
+						className="w-full rounded-lg border border-foreground/15 bg-background px-2 py-1.5 text-sm"
 					>
 						<option value="lock">Stay in one key</option>
 						<option value="cycle4">Cycle 4ths each rep</option>
@@ -67,7 +67,7 @@ export function PatternControls({
 					<select
 						value={instrument}
 						onChange={(e) => onInstrumentChange(e.target.value as Instrument)}
-						className="w-full rounded-lg border border-foreground/15 bg-transparent px-2 py-1.5 text-sm"
+						className="w-full rounded-lg border border-foreground/15 bg-background px-2 py-1.5 text-sm"
 					>
 						{INSTRUMENTS.map((inst) => (
 							<option key={inst.id} value={inst.id}>
@@ -78,7 +78,7 @@ export function PatternControls({
 				</Field>
 			</div>
 
-			<div className="flex items-center justify-between gap-3">
+			<div className="flex flex-wrap items-center justify-between gap-3">
 				<label className="flex items-center gap-2 text-sm text-foreground/70">
 					<input
 						type="checkbox"
@@ -94,7 +94,7 @@ export function PatternControls({
 						value={rampStep}
 						onChange={(e) => onRampStepChange(Number(e.target.value))}
 						disabled={!tempoRamp}
-						className="rounded-lg border border-foreground/15 bg-transparent px-2 py-1 text-sm disabled:opacity-40"
+						className="rounded-lg border border-foreground/15 bg-background px-2 py-1 text-sm disabled:opacity-40"
 					>
 						{RAMP_STEPS.map((s) => (
 							<option key={s} value={s}>

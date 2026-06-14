@@ -10,8 +10,8 @@ export function ChordDisplay({
 	showNext: boolean;
 }) {
 	return (
-		<div className="flex min-h-44 flex-col items-center justify-center gap-3">
-			<div className="text-7xl font-bold leading-none tracking-tight sm:text-8xl">
+		<div className="flex min-h-44 flex-col items-center justify-center gap-3 px-2 text-center">
+			<div className="text-6xl font-bold leading-none tracking-tight break-words sm:text-8xl">
 				{symbol ?? "—"}
 			</div>
 			<div className="h-6 text-base text-foreground/45">

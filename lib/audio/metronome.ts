@@ -90,8 +90,10 @@ export class Metronome {
 			this.getSynth().triggerAttackRelease(pitch, "32n", time, velocity);
 		}
 
+		// Dispatch synchronously at look-ahead so consumers can schedule audio at the
+		// future `time`. Visual updates are deferred to Tone.Draw by the consumers.
 		const tick: Tick = { beat, bar, counting, time };
-		Tone.getDraw().schedule(() => this.onTick?.(tick), time);
+		this.onTick?.(tick);
 		this.tickIndex++;
 	}
 }

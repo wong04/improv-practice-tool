@@ -45,7 +45,7 @@ export function TransportControls({
 }) {
 	return (
 		<div className="flex w-full max-w-xl flex-col gap-5 rounded-2xl border border-foreground/10 p-5">
-			<div className="flex items-center justify-between gap-4">
+			<div className="flex flex-wrap items-center justify-between gap-3">
 				<button
 					type="button"
 					onClick={onToggle}
@@ -100,7 +100,7 @@ export function TransportControls({
 				<span className="w-16 text-right text-sm tabular-nums text-foreground/80">{bpm} bpm</span>
 			</div>
 
-			<div className="flex items-center gap-3">
+			<div className="flex flex-wrap items-center gap-3">
 				<span className="w-24 shrink-0 text-sm text-foreground/60">Time</span>
 				<div className="inline-flex rounded-full border border-foreground/15 p-0.5">
 					{TIME_SIGNATURES.map((ts) => (
