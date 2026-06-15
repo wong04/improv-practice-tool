@@ -1,9 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Subdivision } from "@/lib/audio/metronome";
-import { BassMode } from "@/lib/audio/bass";
-import { Voicing } from "@/lib/audio/chordPlayer";
 import { MetronomeIndicator } from "./MetronomeIndicator";
 
 export const TIME_SIGNATURES: { label: string; beatsPerBar: number }[] = [
@@ -25,34 +22,16 @@ export type TransportProps = {
 	onBpmChange: (bpm: number) => void;
 	beatsPerBar: number;
 	onBeatsPerBarChange: (beats: number) => void;
-	muted: boolean;
-	onMutedChange: (muted: boolean) => void;
-	audioEnabled: boolean;
-	onAudioEnabledChange: (enabled: boolean) => void;
 	countIn: boolean;
 	onCountInChange: (enabled: boolean) => void;
-	clickVolume: number;
-	onClickVolumeChange: (volume: number) => void;
-	chordVolume: number;
-	onChordVolumeChange: (volume: number) => void;
 	beat: number;
 	counting: boolean;
-	/** True while the chord-audio samples are still loading. */
+	/** True while any instrument's samples are still loading. */
 	chordsLoading?: boolean;
-	subdivision: Subdivision;
-	onSubdivisionChange: (value: Subdivision) => void;
-	backbeat: boolean;
-	onBackbeatChange: (value: boolean) => void;
-	bassMode: BassMode;
-	onBassModeChange: (value: BassMode) => void;
-	bassVolume: number;
-	onBassVolumeChange: (value: number) => void;
-	rideVolume: number;
-	onRideVolumeChange: (value: number) => void;
-	voicing: Voicing;
-	onVoicingChange: (value: Voicing) => void;
 	/** Slim bar for focus mode. */
 	compact?: boolean;
+	/** Open the mixer sheet (compact mode only). */
+	onOpenMixer?: () => void;
 };
 
 export function TransportControls(props: TransportProps) {
@@ -79,7 +58,7 @@ export function TransportControls(props: TransportProps) {
 			type="button"
 			onClick={onToggle}
 			disabled={isLoading}
-			className={`rounded-full px-7 py-2.5 text-sm font-semibold tracking-wide transition-colors ${
+			className={`min-h-[44px] rounded-full px-7 py-2.5 text-sm font-semibold tracking-wide transition-colors ${
 				running
 					? "bg-surface text-foreground hover:bg-white/10"
 					: isLoading
@@ -104,20 +83,13 @@ export function TransportControls(props: TransportProps) {
 					/>
 					<span className="text-xs uppercase tracking-widest text-muted">bpm</span>
 				</div>
-				<div className="flex items-center gap-2">
-					<IconToggle
-						on={props.audioEnabled}
-						onClick={() => props.onAudioEnabledChange(!props.audioEnabled)}
-						label="🎹"
-						title="Chord sounds"
-					/>
-					<IconToggle
-						on={!props.muted}
-						onClick={() => props.onMutedChange(!props.muted)}
-						label={props.muted ? "🔇" : "🔊"}
-						title="Metronome click"
-					/>
-				</div>
+				<button
+					type="button"
+					onClick={props.onOpenMixer}
+					className="min-h-[44px] rounded-full border border-white/15 px-4 py-2 text-sm text-muted transition-colors hover:text-foreground"
+				>
+					≡ Mixer
+				</button>
 			</div>
 		);
 	}
@@ -139,7 +111,7 @@ export function TransportControls(props: TransportProps) {
 					<button
 						type="button"
 						onClick={onTap}
-						className="rounded-full border border-white/15 px-4 py-2 text-sm text-muted transition-colors hover:text-foreground"
+						className="min-h-[44px] rounded-full border border-white/15 px-4 py-2 text-sm text-muted transition-colors hover:text-foreground"
 					>
 						Tap
 					</button>
@@ -153,92 +125,13 @@ export function TransportControls(props: TransportProps) {
 				value={bpm}
 				onChange={(e) => onBpmChange(Number(e.target.value))}
 				aria-label="Tempo"
-				className="w-full accent-accent"
+				className="fader w-full accent-accent"
 			/>
 
-			{/* Primary action + sound toggles */}
+			{/* Primary action */}
 			<div className="flex flex-wrap items-center justify-between gap-3">
 				{startStop}
-				<div className="flex items-center gap-2">
-					<IconToggle
-						on={props.audioEnabled}
-						onClick={() => props.onAudioEnabledChange(!props.audioEnabled)}
-						label="🎹 Chords"
-						title="Play chord sounds"
-					/>
-					<IconToggle
-						on={!props.muted}
-						onClick={() => props.onMutedChange(!props.muted)}
-						label={props.muted ? "🔇 Click" : "🔊 Click"}
-						title="Metronome click"
-					/>
-				</div>
-				{props.chordsLoading && (
-					<span className="w-full text-right text-xs text-muted">loading piano sounds…</span>
-				)}
-			</div>
-
-			{/* Levels */}
-			<div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-				<VolumeSlider label="🔊 Click" value={props.clickVolume} onChange={props.onClickVolumeChange} />
-				<VolumeSlider
-					label="🎹 Chords"
-					value={props.chordVolume}
-					onChange={props.onChordVolumeChange}
-					disabled={!props.audioEnabled}
-				/>
-			</div>
-
-			{/* Backing & feel */}
-			<div className="flex flex-col gap-3 rounded-xl border border-white/10 p-3">
-				<Row label="Bass">
-					<Segmented
-						value={props.bassMode}
-						onChange={props.onBassModeChange}
-						options={[
-							["off", "Off"],
-							["roots", "Roots"],
-							["walking", "Walking"],
-						]}
-					/>
-				</Row>
-				{props.bassMode !== "off" && (
-					<VolumeSlider label="🎸 Bass" value={props.bassVolume} onChange={props.onBassVolumeChange} />
-				)}
-				<Row label="Ride">
-					<Segmented
-						value={props.subdivision}
-						onChange={props.onSubdivisionChange}
-						options={[
-							["none", "Off"],
-							["straight", "8ths"],
-							["swing", "Swing"],
-						]}
-					/>
-				</Row>
-				{props.subdivision !== "none" && (
-					<VolumeSlider label="🥁 Ride" value={props.rideVolume} onChange={props.onRideVolumeChange} />
-				)}
-				<Row label="Voicing">
-					<Segmented
-						value={props.voicing}
-						onChange={props.onVoicingChange}
-						options={[
-							["block", "Block"],
-							["shell", "Shell"],
-							["rootless", "Rootless"],
-						]}
-					/>
-				</Row>
-				<label className="flex items-center gap-2 text-sm text-muted">
-					<input
-						type="checkbox"
-						checked={props.backbeat}
-						onChange={(e) => props.onBackbeatChange(e.target.checked)}
-						className="h-4 w-4 accent-accent"
-					/>
-					Click on 2 &amp; 4 (4/4)
-				</label>
+				{props.chordsLoading && <span className="text-xs text-muted">loading sounds…</span>}
 			</div>
 
 			{/* Meter + count-in */}
@@ -250,7 +143,7 @@ export function TransportControls(props: TransportProps) {
 							key={ts.label}
 							type="button"
 							onClick={() => props.onBeatsPerBarChange(ts.beatsPerBar)}
-							className={`rounded-full px-3 py-1 text-sm transition-colors ${
+							className={`min-h-[36px] rounded-full px-3 py-1.5 text-sm transition-colors ${
 								beatsPerBar === ts.beatsPerBar
 									? "bg-accent text-black"
 									: "text-muted hover:text-foreground"
@@ -316,101 +209,5 @@ function BpmInput({
 			aria-label="Tempo in BPM"
 			className={className}
 		/>
-	);
-}
-
-function Row({ label, children }: { label: string; children: React.ReactNode }) {
-	return (
-		<div className="flex items-center justify-between gap-3">
-			<span className="text-sm text-muted">{label}</span>
-			{children}
-		</div>
-	);
-}
-
-function Segmented<T extends string>({
-	value,
-	onChange,
-	options,
-}: {
-	value: T;
-	onChange: (value: T) => void;
-	options: [T, string][];
-}) {
-	return (
-		<div className="inline-flex rounded-full border border-white/15 p-0.5">
-			{options.map(([val, label]) => (
-				<button
-					key={val}
-					type="button"
-					onClick={() => onChange(val)}
-					className={`rounded-full px-3 py-1 text-sm transition-colors ${
-						value === val ? "bg-accent text-black" : "text-muted hover:text-foreground"
-					}`}
-				>
-					{label}
-				</button>
-			))}
-		</div>
-	);
-}
-
-function IconToggle({
-	on,
-	onClick,
-	label,
-	title,
-}: {
-	on: boolean;
-	onClick: () => void;
-	label: string;
-	title: string;
-}) {
-	return (
-		<button
-			type="button"
-			onClick={onClick}
-			aria-pressed={on}
-			title={title}
-			className={`rounded-full border px-3 py-2 text-sm transition-colors ${
-				on
-					? "border-accent/60 text-foreground"
-					: "border-white/15 text-muted hover:text-foreground"
-			}`}
-		>
-			{label}
-		</button>
-	);
-}
-
-function VolumeSlider({
-	label,
-	value,
-	onChange,
-	disabled = false,
-}: {
-	label: string;
-	value: number;
-	onChange: (value: number) => void;
-	disabled?: boolean;
-}) {
-	return (
-		<div className={`flex items-center gap-2 ${disabled ? "opacity-40" : ""}`}>
-			<span className="w-16 shrink-0 text-sm text-muted">{label}</span>
-			<input
-				type="range"
-				min={0}
-				max={1}
-				step={0.01}
-				value={value}
-				disabled={disabled}
-				onChange={(e) => onChange(Number(e.target.value))}
-				aria-label={`${label} volume`}
-				className="flex-1 accent-accent"
-			/>
-			<span className="w-9 text-right font-mono text-sm tabular-nums text-foreground/80">
-				{Math.round(value * 100)}
-			</span>
-		</div>
 	);
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePersistentState } from "@/lib/storage/usePersistentState";
 import { useMetronome } from "@/lib/audio/useMetronome";
 import { useChordPlayer } from "@/lib/audio/useChordPlayer";
@@ -18,6 +18,8 @@ import { Instrument } from "@/lib/theory/transpose";
 import { PROGRESSIONS } from "@/lib/theory/progressions";
 import { scaleForChord, chordTones } from "@/lib/theory/scales";
 import { MAX_BPM, MIN_BPM, TransportControls } from "@/components/TransportControls";
+import { Ensemble, EnsembleProps } from "@/components/Ensemble";
+import { MixerSheet } from "@/components/MixerSheet";
 import { ChordDisplay } from "@/components/ChordDisplay";
 import { Keyboard } from "@/components/Keyboard";
 import { DrillControls, NextPreview } from "@/components/DrillControls";
@@ -32,6 +34,7 @@ const clampBpm = (bpm: number) => Math.max(MIN_BPM, Math.min(MAX_BPM, bpm));
 
 export default function Home() {
 	const [mode, setMode] = usePersistentState<Mode>("mode", "drill");
+	const [mixerOpen, setMixerOpen] = useState(false);
 
 	// Shared / transport settings
 	const [bpm, setBpm] = usePersistentState("bpm", 100);
@@ -155,7 +158,7 @@ export default function Home() {
 		void metronome.start();
 	};
 
-	// Keyboard shortcuts: Space = start/stop, ↑/↓ = tempo, F = fullscreen.
+	// Keyboard shortcuts: Space = start/stop, ↑/↓ = tempo, F = fullscreen, Esc = exit fullscreen.
 	const mainRef = useRef<HTMLElement>(null);
 	const toggleRef = useRef(handleToggle);
 	useEffect(() => {
@@ -177,6 +180,10 @@ export default function Home() {
 			} else if (e.key === "f" || e.key === "F") {
 				if (document.fullscreenElement) void document.exitFullscreen();
 				else void mainRef.current?.requestFullscreen?.();
+			} else if (e.key === "Escape") {
+				// The mixer sheet handles its own Esc (capture phase) and stops propagation,
+				// so reaching here means no sheet is open — exit fullscreen if active.
+				if (document.fullscreenElement) void document.exitFullscreen();
 			}
 		};
 		window.addEventListener("keydown", onKey);
@@ -184,6 +191,34 @@ export default function Home() {
 	}, [setBpm]);
 
 	const countdown = metronome.counting ? beatsPerBar - metronome.beat : null;
+
+	const chordsLoading =
+		(audioEnabled && !chordsReady) ||
+		(bassMode !== "off" && !bassReady) ||
+		(subdivision !== "none" && !rideReady);
+
+	const ensembleProps: EnsembleProps = {
+		muted,
+		onMutedChange: setMuted,
+		clickVolume,
+		onClickVolumeChange: setClickVolume,
+		backbeat,
+		onBackbeatChange: setBackbeat,
+		audioEnabled,
+		onAudioEnabledChange: setAudioEnabled,
+		chordVolume,
+		onChordVolumeChange: setChordVolume,
+		voicing,
+		onVoicingChange: setVoicing,
+		bassMode,
+		onBassModeChange: setBassMode,
+		bassVolume,
+		onBassVolumeChange: setBassVolume,
+		subdivision,
+		onSubdivisionChange: setSubdivision,
+		rideVolume,
+		onRideVolumeChange: setRideVolume,
+	};
 
 	// Hero content per mode.
 	const activeChord = pattern.chords[pattern.activeIndex];
@@ -222,14 +257,14 @@ export default function Home() {
 	return (
 		<main ref={mainRef} className="flex flex-1 flex-col items-center gap-8 bg-background px-4 py-8">
 			{!running && (
-				<header className="text-center">
+				<header className="zone text-center">
 					<h1 className="font-display text-3xl font-semibold tracking-tight">Chord Thrower</h1>
 					<p className="mt-1 text-sm text-muted">Drill chords and jazz patterns in time.</p>
 				</header>
 			)}
 
 			{!running && (
-				<nav className="inline-flex rounded-full border border-white/10 bg-surface/50 p-1">
+				<nav className="zone inline-flex rounded-full border border-white/10 bg-surface/50 p-1">
 					<TabButton active={mode === "drill"} onClick={() => setMode("drill")}>
 						Drill
 					</TabButton>
@@ -256,109 +291,100 @@ export default function Home() {
 				/>
 			) : (
 				<>
-			{hero}
+					{hero}
 
-			{mode === "drill" && showKeyboard && drill.current && !metronome.counting && (
-				<div className="flex w-full max-w-xl flex-col items-center gap-2">
-					<Keyboard
-						chordTones={chordTones(drill.current.root, drill.current.quality)}
-						scaleNotes={scaleForChord(drill.current.root, drill.current.quality).notes}
-					/>
-					<div className="font-mono text-xs uppercase tracking-[0.2em] text-muted">
-						{scaleForChord(drill.current.root, drill.current.quality).name}
+					{mode === "drill" && showKeyboard && drill.current && !metronome.counting && (
+						<div className="flex w-full max-w-xl flex-col items-center gap-2">
+							<Keyboard
+								chordTones={chordTones(drill.current.root, drill.current.quality)}
+								scaleNotes={scaleForChord(drill.current.root, drill.current.quality).notes}
+							/>
+							<div className="font-mono text-xs uppercase tracking-[0.2em] text-muted">
+								{scaleForChord(drill.current.root, drill.current.quality).name}
+							</div>
+						</div>
+					)}
+
+					{mode === "patterns" && !running && (
+						<PatternChart bars={pattern.bars} activeIndex={pattern.activeIndex} />
+					)}
+
+					<div className="zone w-full max-w-xl" style={{ animationDelay: "40ms" }}>
+						<TransportControls
+							running={running}
+							onToggle={handleToggle}
+							bpm={bpm}
+							onBpmChange={setBpm}
+							beatsPerBar={beatsPerBar}
+							onBeatsPerBarChange={setBeatsPerBar}
+							countIn={countIn}
+							onCountInChange={setCountIn}
+							beat={metronome.beat}
+							counting={metronome.counting}
+							chordsLoading={chordsLoading}
+							compact={running}
+							onOpenMixer={() => setMixerOpen(true)}
+						/>
 					</div>
-				</div>
-			)}
 
-			{mode === "patterns" && !running && (
-				<PatternChart bars={pattern.bars} activeIndex={pattern.activeIndex} />
-			)}
+					{!running && (
+						<div className="zone w-full max-w-xl" style={{ animationDelay: "100ms" }}>
+							<Ensemble {...ensembleProps} />
+						</div>
+					)}
 
-			<TransportControls
-				running={running}
-				onToggle={handleToggle}
-				bpm={bpm}
-				onBpmChange={setBpm}
-				beatsPerBar={beatsPerBar}
-				onBeatsPerBarChange={setBeatsPerBar}
-				muted={muted}
-				onMutedChange={setMuted}
-				audioEnabled={audioEnabled}
-				onAudioEnabledChange={setAudioEnabled}
-				countIn={countIn}
-				onCountInChange={setCountIn}
-				clickVolume={clickVolume}
-				onClickVolumeChange={setClickVolume}
-				chordVolume={chordVolume}
-				onChordVolumeChange={setChordVolume}
-				beat={metronome.beat}
-				counting={metronome.counting}
-				chordsLoading={
-						(audioEnabled && !chordsReady) ||
-						(bassMode !== "off" && !bassReady) ||
-						(subdivision !== "none" && !rideReady)
-					}
-					rideVolume={rideVolume}
-					onRideVolumeChange={setRideVolume}
-					subdivision={subdivision}
-					onSubdivisionChange={setSubdivision}
-					backbeat={backbeat}
-					onBackbeatChange={setBackbeat}
-					bassMode={bassMode}
-					onBassModeChange={setBassMode}
-					bassVolume={bassVolume}
-					onBassVolumeChange={setBassVolume}
-					voicing={voicing}
-					onVoicingChange={setVoicing}
-					compact={running}
-			/>
+					{!running &&
+						(mode === "drill" ? (
+							<div className="zone w-full max-w-xl" style={{ animationDelay: "160ms" }}>
+								<DrillControls
+									level={level}
+									onLevelChange={setLevel}
+									keyChoice={keyChoice}
+									onKeyChange={setKeyChoice}
+									tonality={tonality}
+									onTonalityChange={setTonality}
+									showRoman={showRoman}
+									onShowRomanChange={setShowRoman}
+									showKeyboard={showKeyboard}
+									onShowKeyboardChange={setShowKeyboard}
+									barsPerChord={barsPerChord}
+									onBarsChange={setBarsPerChord}
+									instrument={instrument}
+									onInstrumentChange={setInstrument}
+									nextPreview={nextPreview}
+									onNextPreviewChange={setNextPreview}
+									tempoRamp={tempoRamp}
+									onTempoRampChange={setTempoRamp}
+									rampStep={rampStep}
+									onRampStepChange={setRampStep}
+								/>
+							</div>
+						) : (
+							<div className="zone w-full max-w-xl" style={{ animationDelay: "160ms" }}>
+								<PatternControls
+									progressionId={progressionId}
+									onProgressionChange={setProgressionId}
+									keyCycle={keyCycle}
+									onKeyCycleChange={setKeyCycle}
+									instrument={instrument}
+									onInstrumentChange={setInstrument}
+									tempoRamp={tempoRamp}
+									onTempoRampChange={setTempoRamp}
+									rampStep={rampStep}
+									onRampStepChange={setRampStep}
+								/>
+							</div>
+						))}
 
-			{!running &&
-				(mode === "drill" ? (
-					<DrillControls
-						level={level}
-						onLevelChange={setLevel}
-						keyChoice={keyChoice}
-						onKeyChange={setKeyChoice}
-						tonality={tonality}
-						onTonalityChange={setTonality}
-						showRoman={showRoman}
-						onShowRomanChange={setShowRoman}
-						showKeyboard={showKeyboard}
-						onShowKeyboardChange={setShowKeyboard}
-						barsPerChord={barsPerChord}
-						onBarsChange={setBarsPerChord}
-						instrument={instrument}
-						onInstrumentChange={setInstrument}
-						nextPreview={nextPreview}
-						onNextPreviewChange={setNextPreview}
-						tempoRamp={tempoRamp}
-						onTempoRampChange={setTempoRamp}
-						rampStep={rampStep}
-						onRampStepChange={setRampStep}
-					/>
-				) : (
-					<PatternControls
-						progressionId={progressionId}
-						onProgressionChange={setProgressionId}
-						keyCycle={keyCycle}
-						onKeyCycleChange={setKeyCycle}
-						instrument={instrument}
-						onInstrumentChange={setInstrument}
-						tempoRamp={tempoRamp}
-						onTempoRampChange={setTempoRamp}
-						rampStep={rampStep}
-						onRampStepChange={setRampStep}
-					/>
-				))}
-
-			{!running && (
-				<p className="text-xs text-muted/70">
-					Space start/stop · ↑↓ tempo · F fullscreen
-				</p>
-			)}
+					{!running && (
+						<p className="text-xs text-muted/70">
+							Space start/stop · ↑↓ tempo · F fullscreen · Esc exit
+						</p>
+					)}
 				</>
 			)}
+
+			<MixerSheet open={mixerOpen} onClose={() => setMixerOpen(false)} ensemble={ensembleProps} />
 		</main>
 	);
 }
