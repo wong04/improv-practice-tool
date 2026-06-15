@@ -7,6 +7,7 @@ import { tonicChord } from "./keyHarmony";
 import { scaleForChord, chordTones } from "./scales";
 import { makeQuestion } from "../ear/earQuestion";
 import { bassNote } from "../audio/bassNote";
+import { rideSkipBeats } from "../audio/ridePattern";
 import { expandProgression } from "./progressionEngine";
 import { PROGRESSIONS } from "./progressions";
 
@@ -167,6 +168,22 @@ describe("walking bass", () => {
 
 	it("off mode is silent", () => {
 		expect(bassNote({ mode: "off", beat: 0, ...C })).toBeNull();
+	});
+});
+
+describe("ride spang-a-lang pattern by meter", () => {
+	// Beats are 0-based; a "ding" lands on every beat, these get the swung skip note.
+	it("4/4 skips after beats 2 and 4", () => {
+		expect(rideSkipBeats(4)).toEqual([1, 3]);
+	});
+	it("3/4 jazz waltz skips after beat 2 only", () => {
+		expect(rideSkipBeats(3)).toEqual([1]);
+	});
+	it("2/4 skips after beat 2", () => {
+		expect(rideSkipBeats(2)).toEqual([1]);
+	});
+	it("6/8 (two waltz cells) skips after beats 2 and 5", () => {
+		expect(rideSkipBeats(6)).toEqual([1, 4]);
 	});
 });
 

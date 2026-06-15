@@ -1,4 +1,5 @@
 import * as Tone from "tone";
+import { rideSkipBeats } from "./ridePattern";
 
 export type Tick = {
 	/** Beat index within the current bar (0-based). */
@@ -135,9 +136,9 @@ export class Metronome {
 			this.getSynth().triggerAttackRelease(pitch, "32n", time, velocity);
 		}
 
-		// Spang-a-lang: ride hits on beats 1 and 3 only (0-indexed: 0 and 2).
-		// The "and" hits (beat 2 and beat 4 in 1-based) come from fireSub().
-		if (this._subdivision !== "none" && !counting && (beat === 0 || beat === 2)) {
+		// Spang-a-lang: a ride "ding" lands on every beat (downbeat accented); the
+		// swung skip notes between beats are added by fireSub() per meter.
+		if (this._subdivision !== "none" && !counting) {
 			this.onRide?.(time, beat === 0 ? 1 : 0.8);
 		}
 		// Store beat so fireSub() knows which "and" it's playing on.
@@ -150,15 +151,15 @@ export class Metronome {
 		this.tickIndex++;
 	}
 
-	// Off-beat ride hit (the "and"). The 8n repeat fires on both on- and off-beats;
-	// on-beats are handled by fire(), so only the odd (off-beat) ticks sound here.
-	// Transport swing shifts these later when subdivision === "swing".
-	// Spang-a-lang: only fire on the "and" of beats 2 and 4 (currentBeat 1 and 3).
+	// Off-beat ride "skip note" (the "da"). The 8n repeat fires on both on- and
+	// off-beats; on-beats are handled by fire(), so only the odd (off-beat) ticks
+	// sound here. Transport swing shifts these later when subdivision === "swing".
+	// Which off-beats sound depends on the meter (see rideSkipBeats).
 	private fireSub(time: number): void {
 		const isOffbeat = this.subTick++ % 2 === 1;
 		if (!isOffbeat || this._subdivision === "none" || this.inCountIn) return;
-		if (this.currentBeat === 1 || this.currentBeat === 3) {
-			this.onRide?.(time, 0.65);
+		if (rideSkipBeats(this.beatsPerBar).includes(this.currentBeat)) {
+			this.onRide?.(time, 0.6);
 		}
 	}
 }
