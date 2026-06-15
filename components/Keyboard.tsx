@@ -28,11 +28,10 @@ export function Keyboard({
 	const chord = new Set(chordTones.map((n) => Note.chroma(n)).filter((c): c is number => c != null));
 	const scale = new Set(scaleNotes.map((n) => Note.chroma(n)).filter((c): c is number => c != null));
 
-	// Solid colours only (no alpha) so highlights never blend with the dark stage
-	// behind them: chord = vivid coral, scale = light coral, none = key body.
+	// Anything in the scale (chord tones included) lights up coral; every other
+	// key keeps its normal piano colour. Solid only — no alpha stacking.
 	const keyBg = (k: KeyClass, black: boolean) => {
-		if (k === "chord") return "bg-accent";
-		if (k === "scale") return "bg-[#ff9d85]";
+		if (k !== "none") return "bg-accent";
 		return black ? "bg-neutral-900" : "bg-neutral-200";
 	};
 	const whiteBg = (k: KeyClass) => keyBg(k, false);
