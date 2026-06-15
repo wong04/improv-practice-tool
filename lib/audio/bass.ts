@@ -14,6 +14,9 @@ const BASS_URLS: Record<string, string> = {
 	G2: "G2.mp3",
 	C3: "C3.mp3",
 };
+// The upright-bass samples are recorded ~18 dB quieter than the Salamander piano.
+// Multiply user volume by this factor before converting to dB to compensate.
+const BASS_BOOST = 8;
 
 /** Sampled upright bass, played one note per beat on the shared transport. */
 export class Bass {
@@ -24,7 +27,7 @@ export class Bass {
 			urls: BASS_URLS,
 			baseUrl: BASS_BASE_URL,
 			release: 0.4,
-			volume: Tone.gainToDb(volume),
+			volume: Tone.gainToDb(volume * BASS_BOOST),
 			onload: onReady,
 		}).toDestination();
 	}
@@ -34,7 +37,7 @@ export class Bass {
 	}
 
 	setVolume(volume: number): void {
-		this.sampler.volume.value = Tone.gainToDb(volume);
+		this.sampler.volume.value = Tone.gainToDb(volume * BASS_BOOST);
 	}
 
 	/** Play a pitch-class note in the bass register at the given time. */
