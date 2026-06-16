@@ -1,11 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { Note } from "tonal";
-import { formatChord } from "./qualities";
+import { formatChord, QUALITIES } from "./qualities";
 import { KEYS, transposeForInstrument } from "./transpose";
 import { Level, qualityPool, randomChord, TIERS } from "./chordPool";
 import { tonicChord } from "./keyHarmony";
 import { scaleForChord, chordTones } from "./scales";
-import { makeQuestion } from "../ear/earQuestion";
+import { makeQualityQuestion, makeQuestion } from "../ear/earQuestion";
 import { bassNote } from "../audio/bassNote";
 import { rideSkipBeats } from "../audio/ridePattern";
 import { establishKeyCadence } from "./keyHarmony";
@@ -237,6 +237,7 @@ describe("ear test scoring", () => {
 		correctIndex,
 		categoryLabel,
 		revealNotes: [],
+		prompt: { kind: "chord", root: "C", quality: "maj" },
 	});
 	const results: EarTestResult[] = [
 		{ item: item(["I", "IV", "V", "vi"], 0, "I"), picks: [0], correct: true, attemptsUsed: 1 },
@@ -268,13 +269,13 @@ describe("ear test scoring", () => {
 });
 
 describe("ear-training questions", () => {
-	it("quality mode: distinct option labels including the target", () => {
+	it("quality mode: one root, distinct quality-name labels including the target", () => {
 		for (let n = 0; n < 50; n++) {
-			const q = makeQuestion({ level: 2, keyChoice: "all", tonality: "major", mode: "quality" });
+			const q = makeQualityQuestion({ level: 2 });
 			expect(q.options.length).toBeGreaterThanOrEqual(2);
 			expect(new Set(q.labels).size).toBe(q.labels.length);
 			expect(q.options[q.correctIndex]).toBe(q.target);
-			expect(q.labels[q.correctIndex]).toBe(q.target.symbol);
+			expect(q.labels[q.correctIndex]).toBe(QUALITIES[q.target].name);
 		}
 	});
 

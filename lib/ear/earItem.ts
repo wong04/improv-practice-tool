@@ -2,7 +2,7 @@ import { Level } from "@/lib/theory/chordPool";
 import { Tonality } from "@/lib/theory/keyHarmony";
 import { QualityId } from "@/lib/theory/qualities";
 import { chordTones } from "@/lib/theory/scales";
-import { EarMode, makeQuestion } from "./earQuestion";
+import { EarMode, makeQualityQuestion, makeQuestion } from "./earQuestion";
 import { makeDegreeQuestion } from "./degreeQuestion";
 
 export type { EarMode } from "./earQuestion";
@@ -14,10 +14,15 @@ export type EarSettingsInput = {
 	tonality: Tonality;
 };
 
+/** A bit of audio: a single note or a voiced chord (concert pitch). */
+export type EarSound =
+	| { kind: "note"; note: string }
+	| { kind: "chord"; root: string; quality: QualityId };
+
 /**
- * A normalized ear-training question the UI renders identically across exercise
- * types: a set of labels, the correct index, what to light on the keyboard when
- * revealed, and the data needed to (re)play the prompt.
+ * A normalized ear question. `context` (optional) is played first to set a
+ * reference — the key's root note (function) or tonic chord (degree) — then
+ * `prompt` is the thing to identify.
  */
 export type EarItem = {
 	mode: EarMode;
@@ -27,12 +32,8 @@ export type EarItem = {
 	categoryLabel: string;
 	/** Pitch classes to light on the keyboard once revealed (the answer). */
 	revealNotes: string[];
-	/** Present for chord exercises (quality / function). Concert pitch. */
-	chord?: { root: string; quality: QualityId };
-	/** Present for the scale-degree exercise. Concert pitch. */
-	degree?: { tonic: string; tonality: Tonality; targetNote: string };
-	/** Cadence to plant the key before the prompt (scale-degree exercise). */
-	cadence?: { tonic: string; tonality: Tonality };
+	context?: EarSound;
+	prompt: EarSound;
 };
 
 export function makeEarItem(settings: EarSettingsInput): EarItem {
@@ -45,19 +46,35 @@ export function makeEarItem(settings: EarSettingsInput): EarItem {
 			correctIndex: q.correctIndex,
 			categoryLabel: q.labels[q.correctIndex],
 			revealNotes: [targetPc],
-			degree: { tonic: q.tonic, tonality: q.tonality, targetNote: q.targetNote },
-			cadence: { tonic: q.tonic, tonality: q.tonality },
+			// Play the tonic chord first, then the note to identify.
+			context: { kind: "chord", root: q.tonic, quality: q.tonality === "major" ? "maj" : "min" },
+			prompt: { kind: "note", note: q.targetNote },
 		};
 	}
 
+	if (settings.mode === "quality") {
+		const q = makeQualityQuestion(settings);
+		return {
+			mode: "quality",
+			labels: q.labels,
+			correctIndex: q.correctIndex,
+			categoryLabel: q.labels[q.correctIndex],
+			revealNotes: chordTones(q.root, q.target),
+			prompt: { kind: "chord", root: q.root, quality: q.target },
+		};
+	}
+
+	// Function: play the key's root note first, then the chord to identify.
 	const q = makeQuestion(settings);
 	const { concertRoot, quality } = q.target;
+	const hasKey = settings.keyChoice !== "all";
 	return {
-		mode: settings.mode,
+		mode: "function",
 		labels: q.labels,
 		correctIndex: q.correctIndex,
 		categoryLabel: q.labels[q.correctIndex],
 		revealNotes: chordTones(concertRoot, quality),
-		chord: { root: concertRoot, quality },
+		context: hasKey ? { kind: "note", note: `${settings.keyChoice}3` } : undefined,
+		prompt: { kind: "chord", root: concertRoot, quality },
 	};
 }

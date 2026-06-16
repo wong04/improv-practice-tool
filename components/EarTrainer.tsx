@@ -12,7 +12,7 @@ import { EarTest } from "./EarTest";
 type EarView = "practice" | "test";
 
 const PROMPT_LABEL: Record<EarMode, string> = {
-	quality: "name the chord",
+	quality: "name the quality",
 	function: "name the function",
 	degree: "name the scale degree",
 };
@@ -202,7 +202,7 @@ function SettingsCard({
 					<span className="text-sm text-muted">Identify</span>
 					<div className="inline-flex rounded-full border border-white/15 p-0.5">
 						<ModeButton active={mode === "quality"} onClick={() => onModeChange("quality")}>
-							Chord
+							Quality
 						</ModeButton>
 						<ModeButton
 							active={mode === "function"}

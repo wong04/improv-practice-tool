@@ -1,5 +1,7 @@
-import { Chord, Level, randomChord } from "@/lib/theory/chordPool";
+import { Chord, Level, qualityPool, randomChord, TIERS } from "@/lib/theory/chordPool";
 import { Tonality } from "@/lib/theory/keyHarmony";
+import { KEYS } from "@/lib/theory/transpose";
+import { QUALITIES, QualityId } from "@/lib/theory/qualities";
 
 export type EarMode = "quality" | "function" | "degree";
 
@@ -49,6 +51,42 @@ export function makeQuestion(settings: {
 		target,
 		options,
 		labels: options.map(labelOf),
+		correctIndex: options.indexOf(target),
+	};
+}
+
+export type QualityQuestion = {
+	/** Concert-pitch root, shared by every option. */
+	root: string;
+	target: QualityId;
+	options: QualityId[];
+	labels: string[];
+	correctIndex: number;
+};
+
+/**
+ * Build a chord-QUALITY question: one root, identify the quality (Major, Minor,
+ * Half-dim, …). All options share the root so only the colour differs.
+ */
+export function makeQualityQuestion(settings: { level: Level }): QualityQuestion {
+	const root = KEYS[Math.floor(Math.random() * KEYS.length)];
+	const pool = qualityPool(settings.level);
+	const fromTier = settings.level > 1 && Math.random() < 0.6;
+	const target = (fromTier ? TIERS[settings.level].qualities : pool)[
+		Math.floor(Math.random() * (fromTier ? TIERS[settings.level].qualities.length : pool.length))
+	];
+
+	const chosen: QualityId[] = [target];
+	for (const q of shuffle(pool)) {
+		if (chosen.length >= 4) break;
+		if (!chosen.includes(q)) chosen.push(q);
+	}
+	const options = shuffle(chosen);
+	return {
+		root,
+		target,
+		options,
+		labels: options.map((q) => QUALITIES[q].name),
 		correctIndex: options.indexOf(target),
 	};
 }

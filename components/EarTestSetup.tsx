@@ -11,7 +11,7 @@ const QUESTION_COUNTS = [5, 10, 20];
 const ATTEMPTS = [1, 2, 3];
 // The test offers the two chosen exercises.
 const EXERCISES: [EarMode, string][] = [
-	["quality", "Chord"],
+	["quality", "Quality"],
 	["degree", "Scale degree"],
 ];
 
