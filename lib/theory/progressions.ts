@@ -241,20 +241,24 @@ export const PROGRESSIONS: Progression[] = [
 		description: "Coltrane changes: tonal centers moving in major thirds. In B.",
 		defaultTonic: "B",
 		chords: [
-			c("I", "maj7", 2),
-			c("bIII", "7", 2),
-			c("bVI", "maj7", 2),
-			c("VII", "7", 2),
-			c("III", "maj7", 4),
-			c("bVII", "m7", 2),
-			c("bIII", "7", 2),
-			c("bVI", "maj7", 2),
-			c("VII", "7", 2),
-			c("III", "maj7", 2),
-			c("V", "7", 2),
-			c("I", "maj7", 4),
-			c("bV", "m7", 2),
-			c("VII", "7", 2),
+			// A — 3-tonic cycle: B → G → Eb
+			c("I", "maj7", 4),                      // Bmaj7
+			c("bIII", "7", 4),                       // D7
+			c("bVI", "maj7", 4),                     // Gmaj7
+			c("VII", "7", 4),                        // Bb7
+			c("III", "maj7", 4),                     // Ebmaj7
+			c("bVII", "m7", 2), c("bIII", "7", 2),  // Am7  D7
+			c("bVI", "maj7", 4),                     // Gmaj7
+			c("VII", "7", 4),                        // Bb7
+			// B
+			c("III", "maj7", 4),                     // Ebmaj7
+			c("V", "7", 4),                          // F#7
+			c("I", "maj7", 4),                       // Bmaj7
+			c("bV", "m7", 2), c("VII", "7", 2),      // Fm7  Bb7
+			c("III", "maj7", 4),                     // Ebmaj7
+			c("II", "7", 4),                         // C#7
+			c("V", "maj7", 4),                       // F#maj7
+			c("II", "7", 2), c("V", "7", 2),         // C#7  F#7 (turnaround)
 		],
 	},
 	{
