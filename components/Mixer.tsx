@@ -153,8 +153,9 @@ export function Mixer(props: MixerProps) {
 								props.onSubdivisionChange(m);
 							}}
 							options={[
-								["straight", "8ths"],
-								["swing", "Swing"],
+								["straight", "Straight"],
+								["swing", "Jazz"],
+								["bossanova", "Bossa"],
 							]}
 						/>
 					}

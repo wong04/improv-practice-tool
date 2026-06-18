@@ -18,6 +18,8 @@ export type MetronomeConfig = {
 	onTick?: (tick: Tick) => void;
 	/** Sampled ride hook, fired on the beat + swung offbeat at audio-rate. */
 	onRide?: (time: number, velocity: number) => void;
+	/** Rim click hook, fired on beats 2 & 4 in bossa nova feel at audio-rate. */
+	onRimClick?: (time: number, velocity: number) => void;
 };
 
 export type MetronomeControls = {
@@ -44,6 +46,10 @@ export function useMetronome(config: MetronomeConfig): MetronomeControls {
 	useEffect(() => {
 		onRideRef.current = config.onRide;
 	});
+	const onRimClickRef = useRef(config.onRimClick);
+	useEffect(() => {
+		onRimClickRef.current = config.onRimClick;
+	});
 
 	const [running, setRunning] = useState(false);
 	const [beat, setBeat] = useState(-1);
@@ -63,6 +69,7 @@ export function useMetronome(config: MetronomeConfig): MetronomeControls {
 				}, tick.time);
 			};
 			m.onRide = (time, velocity) => onRideRef.current?.(time, velocity);
+			m.onRimClick = (time, velocity) => onRimClickRef.current?.(time, velocity);
 			metronomeRef.current = m;
 		}
 		return metronomeRef.current;

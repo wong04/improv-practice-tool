@@ -210,6 +210,147 @@ export const STANDARDS: Standard[] = [
 			c("I", "m7", 4), c("I", "m7", 4), c("I", "m7", 4), c("I", "m7", 4),
 		],
 	},
+	{
+		id: "rhythm-changes",
+		title: "Rhythm Changes",
+		composer: "Gershwin (I Got Rhythm)",
+		year: 1930,
+		difficulty: 3,
+		homeKey: "Bb",
+		form: "AABA · 32",
+		sections: [{ bar: 0, label: "A" }, { bar: 8, label: "A" }, { bar: 16, label: "B" }, { bar: 24, label: "A" }],
+		chords: [
+			// A
+			c("I", "maj7", 2), c("VI", "m7", 2),    // Bbmaj7 Gm7
+			c("II", "m7", 2), c("V", "7", 2),        // Cm7 F7
+			c("V", "m7", 2), c("I", "7", 2),         // Fm7 Bb7
+			c("IV", "maj7", 2), c("IV", "m7", 2),    // Ebmaj7 Ebm7
+			c("III", "m7", 2), c("VI", "7", 2),      // Dm7 G7
+			c("II", "m7", 2), c("V", "7", 2),        // Cm7 F7
+			c("I", "maj7", 4),                        // Bbmaj7
+			c("II", "m7", 2), c("V", "7", 2),        // Cm7 F7 (turnaround)
+			// A
+			c("I", "maj7", 2), c("VI", "m7", 2),
+			c("II", "m7", 2), c("V", "7", 2),
+			c("V", "m7", 2), c("I", "7", 2),
+			c("IV", "maj7", 2), c("IV", "m7", 2),
+			c("III", "m7", 2), c("VI", "7", 2),
+			c("II", "m7", 2), c("V", "7", 2),
+			c("I", "maj7", 4),
+			c("II", "m7", 2), c("V", "7", 2),
+			// B — III7 VI7 II7 V7 (the classic bebop bridge, each 2 bars)
+			c("III", "7", 8),  // D7
+			c("VI", "7", 8),   // G7
+			c("II", "7", 8),   // C7
+			c("V", "7", 8),    // F7
+			// A
+			c("I", "maj7", 2), c("VI", "m7", 2),
+			c("II", "m7", 2), c("V", "7", 2),
+			c("V", "m7", 2), c("I", "7", 2),
+			c("IV", "maj7", 2), c("IV", "m7", 2),
+			c("III", "m7", 2), c("VI", "7", 2),
+			c("II", "m7", 2), c("V", "7", 2),
+			c("I", "maj7", 4),
+			c("II", "m7", 2), c("V", "7", 2),
+		],
+	},
+	{
+		id: "there-will-never-be-another-you",
+		title: "There Will Never Be Another You",
+		composer: "Harry Warren",
+		year: 1942,
+		difficulty: 3,
+		homeKey: "Eb",
+		form: "AABA · 32",
+		sections: [{ bar: 0, label: "A" }, { bar: 8, label: "A" }, { bar: 16, label: "B" }, { bar: 24, label: "A" }],
+		chords: [
+			// A — I → IV via chromatic movement → II-V turnaround
+			c("I", "maj7", 4),                          // Ebmaj7
+			c("I", "m7", 2), c("IV", "7", 2),           // Ebm7 Ab7
+			c("V", "m7", 2), c("I", "7", 2),            // Bbm7 Eb7
+			c("IV", "maj7", 4),                          // Abmaj7
+			c("#IV", "m7b5", 2), c("bVII", "7", 2),     // Am7b5 D7
+			c("III", "maj7", 4),                         // Gmaj7
+			c("III", "m7", 2), c("VI", "7", 2),         // Gm7 C7
+			c("II", "m7", 2), c("V", "7", 2),           // Fm7 Bb7
+			// A
+			c("I", "maj7", 4),
+			c("I", "m7", 2), c("IV", "7", 2),
+			c("V", "m7", 2), c("I", "7", 2),
+			c("IV", "maj7", 4),
+			c("#IV", "m7b5", 2), c("bVII", "7", 2),
+			c("III", "maj7", 4),
+			c("III", "m7", 2), c("VI", "7", 2),
+			c("II", "m7", 2), c("V", "7", 2),
+			// B — tonicizes Bb (V) before cycling back
+			c("V", "maj7", 4),                           // Bbmaj7
+			c("V", "maj7", 4),                           // Bbmaj7 (2 bars on Bb)
+			c("II", "m7", 2), c("V", "7", 2),           // Fm7 Bb7
+			c("I", "maj7", 4),                           // Ebmaj7
+			c("#IV", "m7b5", 2), c("bVII", "7", 2),     // Am7b5 D7
+			c("III", "maj7", 4),                         // Gmaj7
+			c("III", "m7", 2), c("VI", "7", 2),         // Gm7 C7
+			c("II", "m7", 2), c("V", "7", 2),           // Fm7 Bb7
+			// A
+			c("I", "maj7", 4),
+			c("I", "m7", 2), c("IV", "7", 2),
+			c("V", "m7", 2), c("I", "7", 2),
+			c("IV", "maj7", 4),
+			c("#IV", "m7b5", 2), c("bVII", "7", 2),
+			c("III", "maj7", 4),
+			c("III", "m7", 2), c("VI", "7", 2),
+			c("II", "m7", 2), c("V", "7", 2),
+		],
+	},
+	{
+		id: "fly-me-to-the-moon",
+		title: "Fly Me to the Moon",
+		composer: "Bart Howard",
+		year: 1954,
+		difficulty: 2,
+		homeKey: "A",
+		form: "AABA · 32 · minor",
+		sections: [{ bar: 0, label: "A" }, { bar: 8, label: "A" }, { bar: 16, label: "B" }, { bar: 24, label: "A" }],
+		// Minor ii-V cycle through the relative keys
+		chords: [
+			// A
+			c("I", "m7", 4),                             // Am7
+			c("IV", "m7", 4),                            // Dm7
+			c("bVII", "7", 4),                           // G7
+			c("bIII", "maj7", 4),                        // Cmaj7
+			c("bVI", "maj7", 4),                         // Fmaj7
+			c("II", "m7b5", 2), c("V", "7", 2),         // Bm7b5 E7
+			c("I", "m7", 4),                             // Am7
+			c("II", "m7b5", 2), c("V", "7", 2),         // Bm7b5 E7 (turnaround)
+			// A
+			c("I", "m7", 4),
+			c("IV", "m7", 4),
+			c("bVII", "7", 4),
+			c("bIII", "maj7", 4),
+			c("bVI", "maj7", 4),
+			c("II", "m7b5", 2), c("V", "7", 2),
+			c("I", "m7", 4),
+			c("II", "m7b5", 2), c("V", "7", 2),
+			// B — tonic dominant sends cycle through relative major
+			c("I", "7", 4),                              // A7 (→ Dm7)
+			c("IV", "m7", 4),                            // Dm7
+			c("bVII", "7", 4),                           // G7
+			c("bIII", "maj7", 4),                        // Cmaj7
+			c("bVI", "maj7", 4),                         // Fmaj7
+			c("II", "m7b5", 2), c("V", "7", 2),         // Bm7b5 E7
+			c("I", "m7", 4),                             // Am7
+			c("V", "7", 4),                              // E7 (turnaround back to A)
+			// A
+			c("I", "m7", 4),
+			c("IV", "m7", 4),
+			c("bVII", "7", 4),
+			c("bIII", "maj7", 4),
+			c("bVI", "maj7", 4),
+			c("II", "m7b5", 2), c("V", "7", 2),
+			c("I", "m7", 4),
+			c("II", "m7b5", 2), c("V", "7", 2),
+		],
+	},
 ];
 
 export function standardById(id: string): Standard | undefined {

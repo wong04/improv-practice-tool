@@ -7,6 +7,7 @@ import { useChordPlayer } from "@/lib/audio/useChordPlayer";
 import { useBass } from "@/lib/audio/useBass";
 import { useRide } from "@/lib/audio/useRide";
 import { useWakeLock } from "@/lib/audio/useWakeLock";
+import { useRimClick } from "@/lib/audio/useRimClick";
 import { bassNote, BassMode } from "@/lib/audio/bass";
 import { Subdivision } from "@/lib/audio/metronome";
 import { Voicing } from "@/lib/audio/chordPlayer";
@@ -88,6 +89,7 @@ export default function Home() {
 	const { play: playChord, ready: chordsReady } = useChordPlayer(audioEnabled, chordVolume, voicing);
 	const { play: playBass, ready: bassReady } = useBass(bassMode !== "off", bassVolume);
 	const { play: playRide, ready: rideReady } = useRide(subdivision !== "none", rideVolume);
+	const { play: playRimClick } = useRimClick(subdivision === "bossanova", rideVolume);
 	const secondsPerBeat = 60 / bpm;
 
 	const onBeat = (
@@ -155,6 +157,7 @@ export default function Home() {
 		backbeat,
 		onTick: activeEngine,
 		onRide: playRide,
+		onRimClick: playRimClick,
 	});
 
 	const running = metronome.running;

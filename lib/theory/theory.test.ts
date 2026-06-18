@@ -180,16 +180,19 @@ describe("walking bass", () => {
 describe("ride spang-a-lang pattern by meter", () => {
 	// Beats are 0-based; a "ding" lands on every beat, these get the swung skip note.
 	it("4/4 skips after beats 2 and 4", () => {
-		expect(rideSkipBeats(4)).toEqual([1, 3]);
+		expect(rideSkipBeats(4, "swing")).toEqual([1, 3]);
 	});
 	it("3/4 jazz waltz skips after beat 2 only", () => {
-		expect(rideSkipBeats(3)).toEqual([1]);
+		expect(rideSkipBeats(3, "swing")).toEqual([1]);
 	});
 	it("2/4 skips after beat 2", () => {
-		expect(rideSkipBeats(2)).toEqual([1]);
+		expect(rideSkipBeats(2, "swing")).toEqual([1]);
 	});
 	it("6/8 (two waltz cells) skips after beats 2 and 5", () => {
-		expect(rideSkipBeats(6)).toEqual([1, 4]);
+		expect(rideSkipBeats(6, "swing")).toEqual([1, 4]);
+	});
+	it("bossa nova has no skip beats", () => {
+		expect(rideSkipBeats(4, "bossanova")).toEqual([]);
 	});
 });
 

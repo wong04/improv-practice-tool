@@ -1,3 +1,5 @@
+import { Subdivision } from "./metronome";
+
 /**
  * Jazz ride cymbal ("spang-a-lang") pattern, by meter.
  *
@@ -9,8 +11,11 @@
  *   3/4  "1 2-da 3"  (waltz)    skip after beat 2
  *   2/4  "1 2-da"               skip after beat 2 (into the next downbeat)
  *   6/8  "1 2-da 3 | 4 5-da 6"  two waltz cells, skip after beats 2 & 5
+ *
+ * Bossa nova plays straight quarters only — no skip notes.
  */
-export function rideSkipBeats(beatsPerBar: number): number[] {
+export function rideSkipBeats(beatsPerBar: number, subdivision: Subdivision): number[] {
+	if (subdivision === "bossanova") return [];
 	switch (beatsPerBar) {
 		case 2:
 			return [1];

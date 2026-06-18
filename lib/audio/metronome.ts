@@ -16,8 +16,8 @@ const ACCENT_PITCH = "C6";
 const BEAT_PITCH = "C5";
 const COUNT_PITCH = "G5";
 
-/** Off-beat feel: no offbeats / straight 8ths / swung 8ths (ride). */
-export type Subdivision = "none" | "straight" | "swing";
+/** Off-beat feel: no offbeats / straight 8ths / swung 8ths / bossa nova. */
+export type Subdivision = "none" | "straight" | "swing" | "bossanova";
 
 /**
  * Single source of musical time, built on Tone.Transport. Emits a tick on every
@@ -43,6 +43,8 @@ export class Metronome {
 	onTick: ((tick: Tick) => void) | null = null;
 	/** Sampled ride cymbal; fired on the beat and the swung offbeat. Independent of the click. */
 	onRide: ((time: number, velocity: number) => void) | null = null;
+	/** Synthesized rim click; fired on beats 2 & 4 in bossa nova feel. */
+	onRimClick: ((time: number, velocity: number) => void) | null = null;
 
 	private _subdivision: Subdivision = "none";
 	get subdivision(): Subdivision {
@@ -136,16 +138,18 @@ export class Metronome {
 			this.getSynth().triggerAttackRelease(pitch, "32n", time, velocity);
 		}
 
-		// Spang-a-lang: a ride "ding" lands on every beat (downbeat accented); the
-		// swung skip notes between beats are added by fireSub() per meter.
 		if (this._subdivision !== "none" && !counting) {
+			// Spang-a-lang / straight: ding on every beat.
 			this.onRide?.(time, beat === 0 ? 1 : 0.8);
+
+			// Bossa nova: rim click on beats 2 & 4 (indices 1 & 3).
+			if (this._subdivision === "bossanova" && (beat === 1 || beat === 3)) {
+				this.onRimClick?.(time, 0.7);
+			}
 		}
-		// Store beat so fireSub() knows which "and" it's playing on.
+
 		this.currentBeat = beat;
 
-		// Dispatch synchronously at look-ahead so consumers can schedule audio at the
-		// future `time`. Visual updates are deferred to Tone.Draw by the consumers.
 		const tick: Tick = { beat, bar, counting, time };
 		this.onTick?.(tick);
 		this.tickIndex++;
@@ -158,7 +162,7 @@ export class Metronome {
 	private fireSub(time: number): void {
 		const isOffbeat = this.subTick++ % 2 === 1;
 		if (!isOffbeat || this._subdivision === "none" || this.inCountIn) return;
-		if (rideSkipBeats(this.beatsPerBar).includes(this.currentBeat)) {
+		if (rideSkipBeats(this.beatsPerBar, this._subdivision).includes(this.currentBeat)) {
 			this.onRide?.(time, 0.6);
 		}
 	}
