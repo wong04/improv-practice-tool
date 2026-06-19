@@ -12,6 +12,7 @@ export type MixerProps = {
 	onMutedChange: (muted: boolean) => void;
 	clickVolume: number;
 	onClickVolumeChange: (volume: number) => void;
+	beatsPerBar: number;
 	backbeat: boolean;
 	onBackbeatChange: (value: boolean) => void;
 	audioEnabled: boolean;
@@ -60,11 +61,11 @@ export function Mixer(props: MixerProps) {
 						<Segmented
 							ariaLabel="Click accent"
 							disabled={props.muted}
-							value={props.backbeat ? "backbeat" : "downbeat"}
+							value={props.backbeat && props.beatsPerBar === 4 ? "backbeat" : "downbeat"}
 							onChange={(v) => props.onBackbeatChange(v === "backbeat")}
 							options={[
 								["downbeat", "Downbeat"],
-								["backbeat", "2 & 4"],
+								...(props.beatsPerBar === 4 ? [["backbeat", "2 & 4"] as [string, string]] : []),
 							]}
 						/>
 					}

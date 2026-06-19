@@ -216,6 +216,7 @@ export default function Home() {
 		onMutedChange: setMuted,
 		clickVolume,
 		onClickVolumeChange: setClickVolume,
+		beatsPerBar,
 		backbeat,
 		onBackbeatChange: setBackbeat,
 		audioEnabled,
