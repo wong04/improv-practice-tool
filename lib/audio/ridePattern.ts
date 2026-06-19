@@ -1,21 +1,22 @@
 import { Subdivision } from "./metronome";
 
 /**
- * Jazz ride cymbal ("spang-a-lang") pattern, by meter.
+ * Off-beat "skip note" positions (0-based beat indices) for each feel.
  *
- * A quarter-note "ding" lands on every beat. On top of that, a swung "skip note"
- * is played on the off-beat *after* certain beats — that skip is what gives the
- * pattern its lilt. This returns those beats (0-based) for a given beats-per-bar.
+ * A quarter-note "ding" lands on every beat via fire(). fireSub() fires an
+ * additional off-beat note after each beat whose index appears here.
  *
- *   4/4  "1 2-da 3 4-da"        skip after beats 2 & 4
- *   3/4  "1 2-da 3"  (waltz)    skip after beat 2
- *   2/4  "1 2-da"               skip after beat 2 (into the next downbeat)
- *   6/8  "1 2-da 3 | 4 5-da 6"  two waltz cells, skip after beats 2 & 5
+ *   swing      "1 2-da 3 4-da"   spang-a-lang: skip after beats 2 & 4
+ *   straight   all 8 8th-note positions: skip after every beat
+ *   bossanova  all 8 8th-note positions: steady hihat feel (clave on rim click)
  *
- * Bossa nova plays straight quarters only — no skip notes.
+ * Meter variants for swing:
+ *   3/4  skip after beat 2 only
+ *   2/4  skip after beat 2 only
+ *   6/8  skip after beats 2 & 5
  */
 export function rideSkipBeats(beatsPerBar: number, subdivision: Subdivision): number[] {
-	if (subdivision === "bossanova") return [];
+	if (subdivision === "straight" || subdivision === "bossanova") return [0, 1, 2, 3];
 	switch (beatsPerBar) {
 		case 2:
 			return [1];

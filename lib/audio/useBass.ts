@@ -10,9 +10,10 @@ export type PlayBass = (note: string, time: number, durationSeconds: number) => 
  * the bass samples are still loading. The voice is created as soon as it's enabled so
  * the samples preload before the user presses Start.
  */
-export function useBass(enabled: boolean, volume: number): { play: PlayBass; ready: boolean } {
+export function useBass(enabled: boolean, volume: number): { play: PlayBass; ready: boolean; loadError: boolean } {
 	const ref = useRef<Bass | null>(null);
 	const [ready, setReady] = useState(false);
+	const [loadError, setLoadError] = useState(false);
 	const enabledRef = useRef(enabled);
 	useEffect(() => {
 		enabledRef.current = enabled;
@@ -24,7 +25,7 @@ export function useBass(enabled: boolean, volume: number): { play: PlayBass; rea
 
 	useEffect(() => {
 		if (enabled && !ref.current) {
-			ref.current = new Bass(volumeRef.current, () => setReady(true));
+			ref.current = new Bass(volumeRef.current, () => setReady(true), () => setLoadError(true));
 			if (ref.current.ready) setReady(true);
 		}
 	}, [enabled]);
@@ -42,9 +43,9 @@ export function useBass(enabled: boolean, volume: number): { play: PlayBass; rea
 
 	const play = useCallback<PlayBass>((note, time, durationSeconds) => {
 		if (!enabledRef.current) return;
-		if (!ref.current) ref.current = new Bass(volumeRef.current, () => setReady(true));
+		if (!ref.current) ref.current = new Bass(volumeRef.current, () => setReady(true), () => setLoadError(true));
 		ref.current.play(note, time, durationSeconds);
 	}, []);
 
-	return { play, ready };
+	return { play, ready, loadError };
 }

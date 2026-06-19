@@ -177,22 +177,25 @@ describe("walking bass", () => {
 	});
 });
 
-describe("ride spang-a-lang pattern by meter", () => {
-	// Beats are 0-based; a "ding" lands on every beat, these get the swung skip note.
-	it("4/4 skips after beats 2 and 4", () => {
+describe("ride pattern skip beats by subdivision", () => {
+	// Beats are 0-based; a "ding" lands on every beat, these get the off-beat skip note.
+	it("swing 4/4 skips after beats 2 and 4 (spang-a-lang)", () => {
 		expect(rideSkipBeats(4, "swing")).toEqual([1, 3]);
 	});
-	it("3/4 jazz waltz skips after beat 2 only", () => {
+	it("swing 3/4 jazz waltz skips after beat 2 only", () => {
 		expect(rideSkipBeats(3, "swing")).toEqual([1]);
 	});
-	it("2/4 skips after beat 2", () => {
+	it("swing 2/4 skips after beat 2", () => {
 		expect(rideSkipBeats(2, "swing")).toEqual([1]);
 	});
-	it("6/8 (two waltz cells) skips after beats 2 and 5", () => {
+	it("swing 6/8 (two waltz cells) skips after beats 2 and 5", () => {
 		expect(rideSkipBeats(6, "swing")).toEqual([1, 4]);
 	});
-	it("bossa nova has no skip beats", () => {
-		expect(rideSkipBeats(4, "bossanova")).toEqual([]);
+	it("straight fires skip notes after all 4 beats (true 8th notes)", () => {
+		expect(rideSkipBeats(4, "straight")).toEqual([0, 1, 2, 3]);
+	});
+	it("bossa nova fires skip notes after all 4 beats (steady hihat 8ths)", () => {
+		expect(rideSkipBeats(4, "bossanova")).toEqual([0, 1, 2, 3]);
 	});
 });
 

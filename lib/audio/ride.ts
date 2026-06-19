@@ -12,9 +12,9 @@ export class Ride {
 	private buffer: Tone.ToneAudioBuffer;
 	private gain: Tone.Gain;
 
-	constructor(volume = 0.7, onReady?: () => void) {
+	constructor(volume = 0.7, onReady?: () => void, onError?: () => void) {
 		this.gain = new Tone.Gain(volume).toDestination();
-		this.buffer = new Tone.ToneAudioBuffer(RIDE_URL, () => onReady?.());
+		this.buffer = new Tone.ToneAudioBuffer(RIDE_URL, () => onReady?.(), () => onError?.());
 	}
 
 	get ready(): boolean {

@@ -34,9 +34,11 @@ export function useChordPlayer(
 	arpeggiate: Arpeggiate;
 	playSequence: PlaySequence;
 	ready: boolean;
+	loadError: boolean;
 } {
 	const playerRef = useRef<ChordPlayer | null>(null);
 	const [ready, setReady] = useState(false);
+	const [loadError, setLoadError] = useState(false);
 	const enabledRef = useRef(enabled);
 	useEffect(() => {
 		enabledRef.current = enabled;
@@ -54,7 +56,7 @@ export function useChordPlayer(
 	// before the user presses Start.
 	useEffect(() => {
 		if (enabled && !playerRef.current) {
-			const player = new ChordPlayer(volumeRef.current, () => setReady(true));
+			const player = new ChordPlayer(volumeRef.current, () => setReady(true), () => setLoadError(true));
 			player.voicing = voicingRef.current;
 			playerRef.current = player;
 			if (player.ready) setReady(true);
@@ -80,7 +82,7 @@ export function useChordPlayer(
 	const ensurePlayer = useCallback((): ChordPlayer | null => {
 		if (!enabledRef.current) return null;
 		if (!playerRef.current) {
-			const player = new ChordPlayer(volumeRef.current, () => setReady(true));
+			const player = new ChordPlayer(volumeRef.current, () => setReady(true), () => setLoadError(true));
 			player.voicing = voicingRef.current;
 			playerRef.current = player;
 		}
@@ -115,5 +117,5 @@ export function useChordPlayer(
 		[ensurePlayer],
 	);
 
-	return { play, playPitch, arpeggiate, playSequence, ready };
+	return { play, playPitch, arpeggiate, playSequence, ready, loadError };
 }

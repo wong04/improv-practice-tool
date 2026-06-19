@@ -22,13 +22,14 @@ const BASS_BOOST = 8;
 export class Bass {
 	private sampler: Tone.Sampler;
 
-	constructor(volume = 0.85, onReady?: () => void) {
+	constructor(volume = 0.85, onReady?: () => void, onError?: () => void) {
 		this.sampler = new Tone.Sampler({
 			urls: BASS_URLS,
 			baseUrl: BASS_BASE_URL,
 			release: 0.4,
 			volume: Tone.gainToDb(volume * BASS_BOOST),
 			onload: onReady,
+			onerror: onError,
 		}).toDestination();
 	}
 

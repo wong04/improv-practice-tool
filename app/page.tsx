@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePersistentState } from "@/lib/storage/usePersistentState";
 import { useMetronome } from "@/lib/audio/useMetronome";
 import { useChordPlayer } from "@/lib/audio/useChordPlayer";
@@ -12,20 +12,18 @@ import { bassNote, BassMode } from "@/lib/audio/bass";
 import { Subdivision } from "@/lib/audio/metronome";
 import { Voicing } from "@/lib/audio/chordPlayer";
 import { useDrill } from "@/lib/drill/useDrill";
-import { usePattern, KeyCycle } from "@/lib/pattern/usePattern";
-import { Level } from "@/lib/theory/chordPool";
-import { Tonality } from "@/lib/theory/keyHarmony";
+import { useDrillSettings } from "@/lib/drill/useDrillSettings";
+import { usePattern } from "@/lib/pattern/usePattern";
+import { usePatternSettings } from "@/lib/pattern/usePatternSettings";
+import { useStandardsSettings } from "@/lib/standards/useStandardsSettings";
 import { Instrument } from "@/lib/theory/transpose";
-import { PROGRESSIONS } from "@/lib/theory/progressions";
 import { scaleForChord, chordTones } from "@/lib/theory/scales";
-import { STANDARDS, standardById, Standard } from "@/lib/standards/standards";
-import { standardToProgression } from "@/lib/standards/standardProgression";
 import { MAX_BPM, MIN_BPM, TransportControls } from "@/components/TransportControls";
 import { Mixer, MixerProps } from "@/components/Mixer";
 import { MixerSheet } from "@/components/MixerSheet";
 import { ChordDisplay } from "@/components/ChordDisplay";
 import { Keyboard } from "@/components/Keyboard";
-import { DrillControls, NextPreview } from "@/components/DrillControls";
+import { DrillControls } from "@/components/DrillControls";
 import { PatternControls } from "@/components/PatternControls";
 import { PatternChart } from "@/components/PatternChart";
 import { Standards } from "@/components/Standards";
@@ -56,39 +54,21 @@ export default function Home() {
 	const [rideVolume, setRideVolume] = usePersistentState("rideVolume", 0.7);
 	const [voicing, setVoicing] = usePersistentState<Voicing>("voicing", "block");
 
-	// Drill settings
-	const [level, setLevel] = usePersistentState<Level>("level", 1);
-	const [keyChoice, setKeyChoice] = usePersistentState<string | "all">("keyChoice", "all");
-	const [tonality, setTonality] = usePersistentState<Tonality>("tonality", "major");
-	const [showRoman, setShowRoman] = usePersistentState("showRoman", false);
-	const [showKeyboard, setShowKeyboard] = usePersistentState("showKeyboard", false);
-	const [barsPerChord, setBarsPerChord] = usePersistentState("barsPerChord", 2);
-	const [nextPreview, setNextPreview] = usePersistentState<NextPreview>("nextPreview", "auto");
+	// Mode-specific settings (each hook manages its own persistence keys)
+	const drillSettings = useDrillSettings();
+	const patternSettings = usePatternSettings();
+	const standardsSettings = useStandardsSettings();
 
-	// Pattern settings
-	const [progressionId, setProgressionId] = usePersistentState("progressionId", PROGRESSIONS[0].id);
-	const [patternKey, setPatternKey] = usePersistentState("patternKey", "C");
-	const [keyCycle, setKeyCycle] = usePersistentState<KeyCycle>("keyCycle", "lock");
+	// Shared tempo ramp (used by both drill and pattern modes)
 	const [tempoRamp, setTempoRamp] = usePersistentState("tempoRamp", false);
 	const [rampStep, setRampStep] = usePersistentState("rampStep", 2);
-	const progression = PROGRESSIONS.find((p) => p.id === progressionId) ?? PROGRESSIONS[0];
-
-	// Standards settings
-	const [standardId, setStandardId] = usePersistentState("standardId", STANDARDS[0].id);
-	const [standardKey, setStandardKey] = usePersistentState("standardKey", STANDARDS[0].homeKey);
-	const standard = standardById(standardId) ?? STANDARDS[0];
-	const standardProg = useMemo(() => standardToProgression(standard), [standard]);
-	const selectStandard = (std: Standard) => {
-		setStandardId(std.id);
-		setStandardKey(std.homeKey);
-	};
 
 	// Ear-training settings
 	const [earMode, setEarMode] = usePersistentState<EarMode>("earMode", "quality");
 
-	const { play: playChord, ready: chordsReady } = useChordPlayer(audioEnabled, chordVolume, voicing);
-	const { play: playBass, ready: bassReady } = useBass(bassMode !== "off", bassVolume);
-	const { play: playRide, ready: rideReady } = useRide(subdivision !== "none", rideVolume);
+	const { play: playChord, ready: chordsReady, loadError: chordsError } = useChordPlayer(audioEnabled, chordVolume, voicing);
+	const { play: playBass, ready: bassReady, loadError: bassError } = useBass(bassMode !== "off", bassVolume);
+	const { play: playRide, ready: rideReady, loadError: rideError } = useRide(subdivision !== "none", rideVolume);
 	const { play: playRimClick } = useRimClick(subdivision === "bossanova", rideVolume);
 	const secondsPerBeat = 60 / bpm;
 
@@ -109,6 +89,13 @@ export default function Home() {
 		});
 		if (note) playBass(note, time, secondsPerBeat);
 	};
+
+	const { level, setLevel, keyChoice, setKeyChoice, tonality, setTonality,
+		showRoman, setShowRoman, showKeyboard, setShowKeyboard,
+		barsPerChord, setBarsPerChord, nextPreview, setNextPreview } = drillSettings;
+	const { progression, progressionId, setProgressionId, patternKey, setPatternKey,
+		keyCycle, setKeyCycle } = patternSettings;
+	const { standard, standardProg, standardKey, setStandardKey, standardId, selectStandard } = standardsSettings;
 
 	const drill = useDrill({
 		level,
@@ -218,6 +205,11 @@ export default function Home() {
 		(audioEnabled && !chordsReady) ||
 		(bassMode !== "off" && !bassReady) ||
 		(subdivision !== "none" && !rideReady);
+
+	const audioLoadError =
+		(audioEnabled && chordsError) ||
+		(bassMode !== "off" && bassError) ||
+		(subdivision !== "none" && rideError);
 
 	const mixerProps: MixerProps = {
 		muted,
@@ -357,6 +349,12 @@ export default function Home() {
 							onOpenMixer={() => setMixerOpen(true)}
 						/>
 					</div>
+
+					{audioLoadError && (
+						<p className="text-xs text-amber-400/80">
+							⚠ Some audio samples failed to load — check your connection and refresh.
+						</p>
+					)}
 
 					{!running && (
 						<div className="zone w-full max-w-xl" style={{ animationDelay: "100ms" }}>

@@ -29,7 +29,13 @@ export type PatternSettings = {
 	) => void;
 };
 
-export type Bar = { chords: ResolvedChord[]; startIndex: number };
+export type Bar = {
+	chords: ResolvedChord[];
+	/** Index of the first chord in this bar (into the flat chords array). */
+	startIndex: number;
+	/** True when this bar is a visual continuation of a multi-bar chord above it. */
+	continuation?: boolean;
+};
 
 export type PatternState = {
 	/** Concert key the pattern is currently sounding in. */
@@ -68,7 +74,14 @@ function groupIntoBars(chords: ResolvedChord[]): Bar[] {
 		if (beats >= 4) {
 			bars.push({ chords: bar, startIndex });
 			bar = [];
-			beats = 0;
+			// For chords that span multiple bars (e.g. 8-beat bridge chords),
+			// emit continuation placeholders so section labels stay aligned.
+			let extra = beats - 4;
+			while (extra >= 4) {
+				bars.push({ chords: [], startIndex: i, continuation: true });
+				extra -= 4;
+			}
+			beats = extra;
 		}
 	});
 	if (bar.length) bars.push({ chords: bar, startIndex });

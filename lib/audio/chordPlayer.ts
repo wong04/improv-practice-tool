@@ -58,7 +58,7 @@ export class ChordPlayer {
 	private sampler: Tone.Sampler;
 	voicing: Voicing = "block";
 
-	constructor(volume = 0.8, onReady?: () => void) {
+	constructor(volume = 0.8, onReady?: () => void, onError?: () => void) {
 		// Construct eagerly so the samples start downloading right away (preload).
 		this.sampler = new Tone.Sampler({
 			urls: SALAMANDER_URLS,
@@ -66,6 +66,7 @@ export class ChordPlayer {
 			release: 1,
 			volume: Tone.gainToDb(volume),
 			onload: onReady,
+			onerror: onError,
 		}).toDestination();
 	}
 

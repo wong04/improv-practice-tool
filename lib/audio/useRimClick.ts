@@ -15,12 +15,16 @@ export function useRimClick(enabled: boolean, volume: number): { play: PlayRimCl
 	useEffect(() => {
 		enabledRef.current = enabled;
 	});
+	const volumeRef = useRef(volume);
+	useEffect(() => {
+		volumeRef.current = volume;
+	});
 
 	useEffect(() => {
 		if (enabled && !ref.current) {
-			ref.current = new RimClick(volume);
+			ref.current = new RimClick(volumeRef.current);
 		}
-	}, [enabled, volume]);
+	}, [enabled]);
 
 	useEffect(() => {
 		ref.current?.setVolume(volume);
@@ -35,9 +39,8 @@ export function useRimClick(enabled: boolean, volume: number): { play: PlayRimCl
 
 	const play = useCallback<PlayRimClick>((time, velocity) => {
 		if (!enabledRef.current) return;
-		if (!ref.current) ref.current = new RimClick(volume);
+		if (!ref.current) ref.current = new RimClick(volumeRef.current);
 		ref.current.play(time, velocity);
-	// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	return { play };

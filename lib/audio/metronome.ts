@@ -46,6 +46,8 @@ export class Metronome {
 	/** Synthesized rim click; fired on beats 2 & 4 in bossa nova feel. */
 	onRimClick: ((time: number, velocity: number) => void) | null = null;
 
+	private currentBar = 0;
+
 	private _subdivision: Subdivision = "none";
 	get subdivision(): Subdivision {
 		return this._subdivision;
@@ -142,12 +144,18 @@ export class Metronome {
 			// Spang-a-lang / straight: ding on every beat.
 			this.onRide?.(time, beat === 0 ? 1 : 0.8);
 
-			// Bossa nova: rim click on beats 2 & 4 (indices 1 & 3).
-			if (this._subdivision === "bossanova" && (beat === 1 || beat === 3)) {
-				this.onRimClick?.(time, 0.7);
+			// Bossa nova: 3-2 son clave on the cross-stick (2-bar pattern).
+			// Bar 0 (3-side): beat 1 and beat 4; bar 1 (2-side): beat 2.
+			if (this._subdivision === "bossanova") {
+				const claveBar = ((bar % 2) + 2) % 2;
+				const isClaveHit =
+					(claveBar === 0 && (beat === 0 || beat === 3)) ||
+					(claveBar === 1 && beat === 1);
+				if (isClaveHit) this.onRimClick?.(time, 0.7);
 			}
 		}
 
+		this.currentBar = bar;
 		this.currentBeat = beat;
 
 		const tick: Tick = { beat, bar, counting, time };
@@ -164,6 +172,14 @@ export class Metronome {
 		if (!isOffbeat || this._subdivision === "none" || this.inCountIn) return;
 		if (rideSkipBeats(this.beatsPerBar, this._subdivision).includes(this.currentBeat)) {
 			this.onRide?.(time, 0.6);
+		}
+		// Bossa nova clave off-beat hits: and-of-2 in bar 0, and-of-3 in bar 1.
+		if (this._subdivision === "bossanova") {
+			const claveBar = ((this.currentBar % 2) + 2) % 2;
+			const isClaveOffbeat =
+				(claveBar === 0 && this.currentBeat === 1) ||
+				(claveBar === 1 && this.currentBeat === 2);
+			if (isClaveOffbeat) this.onRimClick?.(time, 0.65);
 		}
 	}
 }

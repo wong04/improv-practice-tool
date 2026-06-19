@@ -1,9 +1,10 @@
-"use client";
+﻿"use client";
 
 import { usePersistentState } from "@/lib/storage/usePersistentState";
-import { Level, TIERS } from "@/lib/theory/chordPool";
+import { Level } from "@/lib/theory/chordPool";
+import { LevelSelector } from "./LevelSelector";
 import { Tonality } from "@/lib/theory/keyHarmony";
-import { KEYS } from "@/lib/theory/transpose";
+import { KeyTonalitySelector } from "./KeyTonalitySelector";
 import { EarMode } from "@/lib/ear/earItem";
 import { EarTestConfig } from "@/lib/ear/useEarTest";
 
@@ -41,52 +42,18 @@ export function EarTestSetup({ onStart }: { onStart: (config: EarTestConfig) => 
 			</Field>
 
 			<Field label="Difficulty">
-				<div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
-					{([1, 2, 3, 4] as Level[]).map((l) => (
-						<button
-							key={l}
-							type="button"
-							onClick={() => setLevel(l)}
-							className={`rounded-lg px-2 py-2 text-center text-xs font-medium transition-colors ${
-								level === l ? "bg-accent text-black" : "bg-white/5 text-muted hover:bg-white/10"
-							}`}
-						>
-							{TIERS[l].name}
-						</button>
-					))}
-				</div>
+				<LevelSelector value={level} onChange={setLevel} />
 			</Field>
 
 			<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
 				<Field label="Key">
-					<select
-						value={keyChoice}
-						onChange={(e) => setKeyChoice(e.target.value)}
-						className="w-full rounded-lg border border-white/15 bg-background px-2 py-1.5 text-sm"
-					>
-						<option value="all">All keys (random each)</option>
-						{KEYS.map((k) => (
-							<option key={k} value={k}>
-								{k}
-							</option>
-						))}
-					</select>
-					{keyMode && (
-						<div className="inline-flex rounded-full border border-white/15 p-0.5">
-							{(["major", "minor"] as Tonality[]).map((t) => (
-								<button
-									key={t}
-									type="button"
-									onClick={() => setTonality(t)}
-									className={`flex-1 rounded-full px-3 py-1 text-xs capitalize transition-colors ${
-										tonality === t ? "bg-accent text-black" : "text-muted hover:text-foreground"
-									}`}
-								>
-									{t}
-								</button>
-							))}
-						</div>
-					)}
+					<KeyTonalitySelector
+						keyChoice={keyChoice}
+						onKeyChange={setKeyChoice}
+						tonality={tonality}
+						onTonalityChange={setTonality}
+						allKeysLabel="All keys (random each)"
+					/>
 				</Field>
 
 				<Field label="Questions">
